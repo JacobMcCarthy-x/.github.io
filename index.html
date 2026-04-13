@@ -44,7 +44,7 @@
 </head>
 <body>
 
-<header>CompTIA Study Hub</header>
+<header>CompTIA Certification Lab</header>
 
 <div class="container">
   <h2 id="sectionTitle">Select a Section</h2>
@@ -52,6 +52,8 @@
   <div id="home">
     <button onclick="loadSection('A+ Core 1')">A+ Core 1</button>
     <button onclick="loadSection('A+ Core 2')">A+ Core 2</button>
+    <button onclick="loadSection('Network+')">Network+</button>
+    <button onclick="loadSection('Security+')">Security+</button>
   </div>
 
   <div id="study" style="display:none;">
@@ -65,14 +67,13 @@
 
 <script>
 const flashcards = {
-  "A+ Core 1": [
-    {q: "What port does HTTP use?", a: "80"},
-    {q: "What port does HTTPS use?", a: "443"},
-    {q: "What does CPU stand for?", a: "Central Processing Unit"}
+  "A+ Core 1": [],
+  "A+ Core 2": [],
+  "Network+": [
+    {q: "What port does SSH use?", a: "22"}
   ],
-  "A+ Core 2": [
-    {q: "What is Windows Safe Mode?", a: "A diagnostic startup mode"},
-    {q: "What does OS stand for?", a: "Operating System"}
+  "Security+": [
+    {q: "What does CIA triad stand for?", a: "Confidentiality, Integrity, Availability"}
   ]
 };
 
@@ -97,13 +98,24 @@ function goHome() {
 }
 
 function showCard() {
-  const card = flashcards[currentSection][currentIndex];
+  const cards = flashcards[currentSection];
+
+  if (cards.length === 0) {
+    document.getElementById("cardText").innerText = "No flashcards added yet";
+    return;
+  }
+
+  const card = cards[currentIndex];
   document.getElementById("cardText").innerText = card.q;
   flipped = false;
 }
 
 function flipCard() {
-  const card = flashcards[currentSection][currentIndex];
+  const cards = flashcards[currentSection];
+
+  if (cards.length === 0) return;
+
+  const card = cards[currentIndex];
   const text = document.getElementById("cardText");
 
   if (!flipped) {
@@ -116,7 +128,11 @@ function flipCard() {
 }
 
 function nextCard() {
-  currentIndex = (currentIndex + 1) % flashcards[currentSection].length;
+  const cards = flashcards[currentSection];
+
+  if (cards.length === 0) return;
+
+  currentIndex = (currentIndex + 1) % cards.length;
   showCard();
 }
 </script>
