@@ -25,12 +25,16 @@
   </div>
 
   <div id="mode" style="display:none;">
-    <button onclick="goHome()">Back</button>
     <h3 id="modeTitle"></h3>
-    <button onclick="startMode('flashcard')">Flashcards</button>
-    <button onclick="startMode('study')">Study</button>
-    <button onclick="openQuizSetup()">Quiz</button>
-    <button onclick="startMode('test')">Test</button>
+
+    <p id="sectionLabel"></p>
+
+    <button onclick="startMode('flashcard')">Flashcards</button><br>
+    <button onclick="startMode('study')">Study</button><br>
+    <button onclick="openQuizSetup()">Quiz</button><br>
+    <button onclick="startMode('test')">Test</button><br><br>
+
+    <button onclick="goHome()">Back</button>
   </div>
 
   <!-- STUDY / FLASHCARDS -->
@@ -47,21 +51,30 @@
     <button onclick="backToModes()">Back</button>
     <h3>Quiz Settings</h3>
 
-    <p>Questions (5–50)</p>
-    <p>Timer (5–60 minutes)</p>
+    <div style="margin:10px;">
+      <span>Questions (5–50)</span><br>
+      <input type="range" min="5" max="50" value="10" onchange="updateQCount(this.value)">
+      <span id="qCount">10</span>
+    </div>
 
-    <p>Number of Questions: <span id="qCount">10</span></p>
-    <input type="range" min="5" max="50" value="10" onchange="updateQCount(this.value)">
+    <div style="margin:10px;">
+      <span>Timer (5–60 minutes)</span><br>
+      <input type="range" min="5" max="60" value="10" onchange="updateTimer(this.value)">
+      <span id="timerVal">10</span>
+      <br>
+      <button onclick="toggleTimer()">Toggle Timer</button>
+      <span id="timerStatus">ON</span>
+    </div>
 
-    <p>Timer (minutes): <span id="timerVal">10</span></p>
-    <input type="range" min="5" max="60" value="10" onchange="updateTimer(this.value)">
+    <div style="margin:10px;">
+      <span>Instant Feedback?</span>
+      <button onclick="toggleFeedback()">Toggle</button>
+      <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:10px;"></span>
+      <span id="feedbackStatus">ON</span>
+    </div>
 
     <br>
-    <button onclick="toggleFeedback()">Toggle Instant Feedback</button>
-    <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:10px;"></span>
-    <p id="feedbackStatus">Feedback: ON</p>
-
-    <button onclick="startQuiz()">Start Quiz</button>
+    <button onclick="startQuiz()">Begin Quiz</button>
   </div>
 
   <!-- QUIZ -->
@@ -98,13 +111,15 @@ let totalQuestions = 10;
 let timer = 0;
 let timerInterval = null;
 let feedbackOn = true;
+let timerEnabled = true;
 let flipped = false;
 
 function selectSection(section) {
   currentSection = section;
   document.getElementById("home").style.display = "none";
   document.getElementById("mode").style.display = "block";
-  document.getElementById("modeTitle").innerText = section;
+  document.getElementById("modeTitle").innerText = "Section: " + section;
+  document.getElementById("sectionTitle").style.display = "none";
 }
 
 function startMode(mode) {
@@ -140,9 +155,14 @@ function updateTimer(val) {
   document.getElementById("timerVal").innerText = val;
 }
 
+function toggleTimer() {
+  timerEnabled = !timerEnabled;
+  document.getElementById("timerStatus").innerText = timerEnabled ? "ON" : "OFF";
+}
+
 function toggleFeedback() {
   feedbackOn = !feedbackOn;
-  document.getElementById("feedbackStatus").innerText = "Feedback: " + (feedbackOn ? "ON" : "OFF");
+  document.getElementById("feedbackStatus").innerText = feedbackOn ? "ON" : "OFF";
   const indicator = document.getElementById("feedbackIndicator");
   indicator.style.background = feedbackOn ? "green" : "red";
 }
@@ -157,6 +177,7 @@ function startQuiz() {
 }
 
 function startTimer() {
+  if (!timerEnabled) return;
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     if (timer <= 0) {
@@ -164,6 +185,10 @@ function startTimer() {
       endQuiz();
       return;
     }
+    timer--;
+    document.getElementById("score").innerText = "Time Left: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
+  }, 1000);
+}
     timer--;
     document.getElementById("score").innerText = "Time Left: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
   }, 1000);
@@ -253,6 +278,7 @@ function backToModes() {
 function goHome() {
   document.getElementById("mode").style.display = "none";
   document.getElementById("home").style.display = "block";
+  document.getElementById("sectionTitle").style.display = "block";
 }
 </script>
 
