@@ -6,8 +6,25 @@
     body { font-family: Arial; background: #0f172a; color: white; text-align: center; margin: 0; }
     header { padding: 20px; background: #1e293b; font-size: 24px; }
     .container { padding: 20px; }
-    .card { background: #1e293b; padding: 20px; margin: 20px auto; width: 300px; border-radius: 10px; }
-    button { padding: 10px; margin: 5px; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
     .correct { border: 2px solid green; }
     .incorrect { border: 2px solid red; }
   </style>
@@ -17,12 +34,15 @@
 <header>CompTIA Certification Lab</header>
 
 <div class="container">
+
   <h2 id="sectionTitle">Select a Section</h2>
 
+  <!-- HOME -->
   <div id="home">
     <button onclick="selectSection('A+ Core 1')">A+ Core 1</button>
   </div>
 
+  <!-- MODE -->
   <div id="mode" style="display:none;">
     <h3 id="modeTitle"></h3>
 
@@ -34,6 +54,7 @@
     <button onclick="goHome()">Back</button>
   </div>
 
+  <!-- QUIZ SETUP -->
   <div id="quizSetup" style="display:none;">
     <button onclick="backToModes()">Back</button>
     <h3>Quiz Settings</h3>
@@ -45,81 +66,90 @@
     <button onclick="startQuiz()">Begin Quiz</button>
   </div>
 
+  <!-- QUIZ -->
   <div id="quiz" style="display:none;">
     <button onclick="backToModes()">Back</button>
-    <div class="card"><p id="questionText"></p></div>
+    <div class="card">
+      <p id="questionText"></p>
+    </div>
     <div id="answers"></div>
     <p id="score"></p>
   </div>
 
+  <!-- REVIEW -->
   <div id="review" style="display:none;">
     <h3>Review Incorrect Answers</h3>
     <div id="reviewList"></div>
     <button onclick="goHome()">Back to Home</button>
   </div>
+
 </div>
 
 <script src="A1QuizData.js"></script>
+
 <script>
-let currentSection="";
-let shuffledQuestions=[];
-let currentIndex=0;
-let score=0;
-let totalQuestions=10;
-let incorrectAnswers=[];
+let currentSection = "";
+let shuffledQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let totalQuestions = 10;
+let incorrectAnswers = [];
 
 function selectSection(section){
-  currentSection=section;
-  document.getElementById("home").style.display="none";
-  document.getElementById("mode").style.display="block";
-  document.getElementById("modeTitle").innerText="Section: "+section;
+  currentSection = section;
+  document.getElementById("home").style.display = "none";
+  document.getElementById("mode").style.display = "block";
+  document.getElementById("modeTitle").innerText = "Section: " + section;
 }
 
 function openQuizSetup(){
-  document.getElementById("mode").style.display="none";
-  document.getElementById("quizSetup").style.display="block";
+  document.getElementById("mode").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
 }
 
 function updateQCount(val){
-  totalQuestions=parseInt(val);
-  document.getElementById("qCount").innerText=val;
+  totalQuestions = parseInt(val);
+  document.getElementById("qCount").innerText = val;
 }
 
 function startQuiz(){
-  document.getElementById("quizSetup").style.display="none";
-  document.getElementById("quiz").style.display="block";
-  currentIndex=0;
-  score=0;
-  incorrectAnswers=[];
-  shuffledQuestions=shuffle([...A1QuizData]);
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+
+  currentIndex = 0;
+  score = 0;
+  incorrectAnswers = [];
+
+  shuffledQuestions = shuffle([...A1QuizData]);
+
   loadQuestion();
 }
 
 function loadQuestion(){
-  if(currentIndex>=totalQuestions||currentIndex>=shuffledQuestions.length){
+  if (currentIndex >= totalQuestions || currentIndex >= shuffledQuestions.length){
     endQuiz();
     return;
   }
 
-  const q=shuffledQuestions[currentIndex];
-  document.getElementById("questionText").innerText=q.q;
+  const q = shuffledQuestions[currentIndex];
+  document.getElementById("questionText").innerText = q.q;
 
-  const answers=document.getElementById("answers");
-  answers.innerHTML="";
+  const answers = document.getElementById("answers");
+  answers.innerHTML = "";
 
-  shuffle([...q.options]).forEach(opt=>{
-    const btn=document.createElement("button");
-    btn.innerText=opt;
-    btn.onclick=()=>checkAnswer(opt,q);
+  shuffle([...q.options]).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(opt, q);
     answers.appendChild(btn);
   });
 }
 
-function checkAnswer(answer,q){
-  if(answer===q.correct){
+function checkAnswer(answer, q){
+  if (answer === q.correct){
     score++;
   } else {
-    incorrectAnswers.push({question:q, selected:answer});
+    incorrectAnswers.push({question: q, selected: answer});
   }
 
   currentIndex++;
@@ -127,57 +157,57 @@ function checkAnswer(answer,q){
 }
 
 function endQuiz(){
-  document.getElementById("quiz").style.display="none";
+  document.getElementById("quiz").style.display = "none";
 
-  const total=Math.min(totalQuestions,shuffledQuestions.length);
-  const percent=((score/total)*100).toFixed(1);
+  const total = Math.min(totalQuestions, shuffledQuestions.length);
+  const percent = ((score / total) * 100).toFixed(1);
 
-  document.getElementById("review").style.display="block";
+  document.getElementById("review").style.display = "block";
 
-  const reviewDiv=document.getElementById("reviewList");
-  reviewDiv.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
+  const reviewDiv = document.getElementById("reviewList");
+  reviewDiv.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
 
-  incorrectAnswers.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="card";
+  incorrectAnswers.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
 
-    const q=item.question;
+    const q = item.question;
 
-    let html=`<p>${q.q}</p>`;
+    let html = `<p>${q.q}</p>`;
 
-    q.options.forEach(opt=>{
-      if(opt===q.correct){
-        html+=`<div class='correct'>${opt}</div>`;
-      } else if(opt===item.selected){
-        html+=`<div class='incorrect'>${opt}</div>`;
+    q.options.forEach(opt => {
+      if (opt === q.correct){
+        html += `<div class='correct'>${opt}</div>`;
+      } else if (opt === item.selected){
+        html += `<div class='incorrect'>${opt}</div>`;
       } else {
-        html+=`<div>${opt}</div>`;
+        html += `<div>${opt}</div>`;
       }
     });
 
-    div.innerHTML=html;
+    div.innerHTML = html;
     reviewDiv.appendChild(div);
   });
 }
 
 function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+  for (let i = a.length - 1; i > 0; i--){
+    let j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
 function backToModes(){
-  document.getElementById("quiz").style.display="none";
-  document.getElementById("quizSetup").style.display="none";
-  document.getElementById("mode").style.display="block";
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("mode").style.display = "block";
 }
 
 function goHome(){
-  document.getElementById("review").style.display="none";
-  document.getElementById("mode").style.display="none";
-  document.getElementById("home").style.display="block";
+  document.getElementById("review").style.display = "none";
+  document.getElementById("mode").style.display = "none";
+  document.getElementById("home").style.display = "block";
 }
 </script>
 
