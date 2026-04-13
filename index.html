@@ -15,7 +15,19 @@
 </head>
 <body>
 
-<header>CompTIA Certification Lab</header>
+<header style="display:flex; justify-content:space-between; align-items:center; padding:20px; background:#1e293b;">
+  <div>CompTIA Certification Lab</div>
+  <button onclick="toggleStatsBar()">Stats</button>
+</header>
+
+<div id="statsBar" style="display:none; background:#111827; padding:10px;">
+  <p id="statAnswers"></p>
+  <p id="statCorrect"></p>
+  <p id="statPercent"></p>
+  <p id="statQuizzes"></p>
+  <p id="statAced"></p>
+  <p id="statPassed"></p>
+</div>
 
 <div class="container">
 
@@ -73,6 +85,17 @@
 <div id="review" style="display:none;">
   <h3>Review Incorrect Answers</h3>
   <div id="reviewList"></div>
+  <button onclick="showStats()">View Stats</button>
+  <button onclick="goHome()">Back to Home</button>
+</div>
+
+<div id="stats" style="display:none;">
+  <h3>Personal Statistics</h3>
+  <p id="statTotal"></p>
+  <p id="statCorrect"></p>
+  <p id="statAccuracy"></p>
+  <button onclick="goHome()">Back to Home</button>
+</div>
   <button onclick="goHome()">Back to Home</button>
 </div>
 
@@ -86,6 +109,11 @@ let currentIndex=0;
 let score=0;
 let totalQuestions=10;
 let incorrectAnswers=[];
+let totalAnswered=0;
+let totalCorrect=0;
+let quizzesCompleted=0;
+let quizzesAced=0;
+let quizzesPassed=0;
 let timer=600;
 let timerInterval;
 let timerEnabled=true;
@@ -166,7 +194,21 @@ function loadQuestion(){
 }
 
 function checkAnswer(ans,q){
-  if(ans===q.correct){score++; if(feedbackOn) alert("Correct");}
+  totalAnswered++;
+
+  if(ans===q.correct){
+    score++;
+    totalCorrect++;
+    if(feedbackOn) alert("Correct");
+  }
+  else{
+    if(feedbackOn) alert("Incorrect");
+    incorrectAnswers.push({question:q,selected:ans});
+  }
+
+  currentIndex++;
+  loadQuestion();
+}
   else{ if(feedbackOn) alert("Incorrect"); incorrectAnswers.push({question:q,selected:ans}); }
 
   currentIndex++;
@@ -174,11 +216,15 @@ function checkAnswer(ans,q){
 }
 
 function endQuiz(){
+  quizzesCompleted++;
   clearInterval(timerInterval);
   quiz.style.display="none";
 
   const total=Math.min(totalQuestions,shuffledQuestions.length);
   const percent=((score/total)*100).toFixed(1);
+
+  if(percent == 100) quizzesAced++;
+  if(percent >= 75) quizzesPassed++;
 
   review.style.display="block";
   reviewList.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
@@ -199,15 +245,39 @@ function endQuiz(){
   });
 }
 
+function toggleStatsBar(){
+  const bar = document.getElementById("statsBar");
+  bar.style.display = bar.style.display === "none" ? "block" : "none";
+
+  const accuracy = totalAnswered ? ((totalCorrect/totalAnswered)*100).toFixed(1) : 0;
+
+  document.getElementById("statAnswers").innerText = "Answers Completed: " + totalAnswered;
+  document.getElementById("statCorrect").innerText = "Answers Correct: " + totalCorrect;
+  document.getElementById("statPercent").innerText = "Correct Answer Percentage: " + accuracy + "%";
+  document.getElementById("statQuizzes").innerText = "Quizzes Completed: " + quizzesCompleted;
+  document.getElementById("statAced").innerText = "Quizzes Aced: " + quizzesAced;
+  document.getElementById("statPassed").innerText = "Quizzes Passed (75%): " + quizzesPassed;
+}
+
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function backToModes(){quiz.style.display="none";quizSetup.style.display="none";mode.style.display="block";}
+function showStats(){
+  review.style.display="none";
+  stats.style.display="block";
+
+  const accuracy = totalAnswered ? ((totalCorrect/totalAnswered)*100).toFixed(1) : 0;
+
+  statTotal.innerText = "Total Questions Answered: " + totalAnswered;
+  statCorrect.innerText = "Total Correct: " + totalCorrect;
+  statAccuracy.innerText = "Accuracy: " + accuracy + "%";
+}
+
 function goHome(){
   review.style.display="none";
+  stats.style.display="none";
   mode.style.display="none";
   home.style.display="block";
-  // show header text again on home
-  sectionTitle.style.display="block";
 }
 </script>
 
