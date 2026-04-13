@@ -12,32 +12,23 @@
     .correct { border:2px solid green; }
     .incorrect { border:2px solid red; }
 
-/* Stats panel */
-.stats-panel {
-  position: fixed;
-  right: 0;
-  top: 70px;
-  width: 260px;
-  background: #111827;
-  border-left: 2px solid #374151;
-  padding: 15px;
-  text-align: left;
-  box-shadow: -5px 0 10px rgba(0,0,0,0.5);
-}
-
-.stats-panel h4 {
-  margin-top: 0;
-}
-
-.stats-panel p {
-  margin: 6px 0;
-  font-size: 14px;
-}
+    /* Stats panel */
+    .stats-panel {
+      position: fixed;
+      right: 0;
+      top: 70px;
+      width: 260px;
+      background: #111827;
+      border-left: 2px solid #374151;
+      padding: 15px;
+      text-align: left;
+      box-shadow: -5px 0 10px rgba(0,0,0,0.5);
+    }
   </style>
 </head>
 <body>
 
-<header style="display:flex; justify-content:space-between; align-items:center; padding:20px; background:#1e293b;">
+<header style="display:flex; justify-content:space-between; align-items:center;">
   <div>CompTIA Certification Lab</div>
   <button onclick="toggleStatsBar()">Stats</button>
 </header>
@@ -47,13 +38,13 @@
   <p id="statAnswers"></p>
   <p id="statCorrect"></p>
   <p id="statPercent"></p>
-  <hr style="border-color:#374151;">
+  <hr>
   <p id="statQuizzes"></p>
   <p id="statAced"></p>
   <p id="statPassed"></p>
   <br>
   <button onclick="showResetConfirm()">Reset</button>
-  <div id="resetConfirm" style="display:none; margin-top:10px;">
+  <div id="resetConfirm" style="display:none;">
     <p>Are you sure?</p>
     <button onclick="confirmReset()">Yes</button>
     <button onclick="cancelReset()">No</button>
@@ -70,22 +61,15 @@
 
 <div id="mode" style="display:none;">
   <h3 id="modeTitle"></h3>
-
   <div class="row">
     <button onclick="startMode('flashcard')">Flashcards</button>
     <button onclick="startMode('study')">Study</button>
     <button onclick="openQuizSetup()">Quiz</button>
     <button onclick="startMode('test')">Test</button>
   </div>
-
-</div>
-
-  <br>
-  <button onclick="goHome()">Back</button>
 </div>
 
 <div id="quizSetup" style="display:none;">
-  
   <h3>Quiz Settings</h3>
 
   Questions (5–50)<br>
@@ -96,12 +80,12 @@
   <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
   <span id="timerVal">10</span>
   <button onclick="toggleTimer()">Toggle</button>
-  <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:5px;"></span>
+  <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
   <span id="timerStatus">ON</span><br><br>
 
   Feedback?
   <button onclick="toggleFeedback()">Toggle</button>
-  <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:5px;"></span>
+  <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
   <span id="feedbackStatus">ON</span>
 
   <br><br>
@@ -109,7 +93,6 @@
 </div>
 
 <div id="quiz" style="display:none;">
-  
   <p id="timerDisplay"></p>
   <div class="card"><p id="questionText"></p></div>
   <div id="answers"></div>
@@ -118,35 +101,15 @@
 <div id="review" style="display:none;">
   <h3>Review Incorrect Answers</h3>
   <div id="reviewList"></div>
-  <button onclick="goHome()" id="reviewHomeBtn">Back to Home</button>
-
-  <h3>Review Incorrect Answers</h3>
-  <div id="reviewList"></div>
-  
-  <button onclick="goHome()" id="reviewHomeBtn">Back to Home</button>
-</div>
-
-<div id="stats" style="display:none;">
-  <h3>Personal Statistics</h3>
-  <p id="statTotal"></p>
-  <p id="statCorrect"></p>
-  <p id="statAccuracy"></p>
-  
-</div>
-  
+  <button onclick="goHome()">Back to Home</button>
 </div>
 
 </div>
 
 <script src="A1QuizData.js"></script>
 <script>
-window.onload = () => {
-  goHome();
-};
-</script>
-<script>
 
-// ELEMENT REFERENCES
+// ELEMENTS
 const home = document.getElementById("home");
 const mode = document.getElementById("mode");
 const quizSetup = document.getElementById("quizSetup");
@@ -187,13 +150,17 @@ let quizzesCompleted=0;
 let quizzesAced=0;
 let quizzesPassed=0;
 
-// NAVIGATION
+// NAV
 function selectSection(section){
   currentSection=section;
   home.style.display="none";
   mode.style.display="block";
   modeTitle.innerText="Section: "+section;
   sectionTitle.style.display="none";
+}
+
+function startMode(){
+  alert("Not built yet");
 }
 
 function openQuizSetup(){
@@ -210,6 +177,7 @@ function goHome(){
   sectionTitle.style.display="block";
 }
 
+// SETTINGS
 function updateQCount(v){ totalQuestions=parseInt(v); qCount.innerText=v; }
 function updateTimer(v){ timer=parseInt(v)*60; timerVal.innerText=v; }
 
@@ -225,6 +193,7 @@ function toggleFeedback(){
   feedbackIndicator.style.background=feedbackOn?"green":"red";
 }
 
+// QUIZ
 function startQuiz(){
   quizSetup.style.display="none";
   quiz.style.display="block";
@@ -311,24 +280,9 @@ function endQuiz(){
   review.style.display="block";
 
   reviewList.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
-
-  incorrectAnswers.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="card";
-
-    let html=`<p>${item.question.q}</p>`;
-
-    item.question.options.forEach(opt=>{
-      if(opt===item.question.correct) html+=`<div class='correct'>${opt}</div>`;
-      else if(opt===item.selected) html+=`<div class='incorrect'>${opt}</div>`;
-      else html+=`<div>${opt}</div>`;
-    });
-
-    div.innerHTML=html;
-    reviewList.appendChild(div);
-  });
 }
 
+// STATS
 function toggleStatsBar(){
   statsBar.style.display = statsBar.style.display === "none" ? "block" : "none";
 
@@ -358,24 +312,18 @@ function confirmReset(){
   quizzesPassed = 0;
 
   document.getElementById("resetConfirm").style.display = "none";
-
-  toggleStatsBar();
-  toggleStatsBar();
 }
 
+// UTIL
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     let j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
   return a;
-}(a){
-  for(let i=a.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
 }
+
+window.onload = () => goHome();
 
 </script>
 
