@@ -51,6 +51,7 @@
   <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
   <span id="timerVal">10</span>
   <button onclick="toggleTimer()">Toggle</button>
+  <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:5px;"></span>
   <span id="timerStatus">ON</span><br><br>
 
   Feedback?
@@ -116,6 +117,7 @@ function updateTimer(v){timer=parseInt(v)*60;timerVal.innerText=v;}
 function toggleTimer(){
   timerEnabled=!timerEnabled;
   timerStatus.innerText=timerEnabled?"ON":"OFF";
+  timerIndicator.style.background=timerEnabled?"green":"red";
 }
 
 function toggleFeedback(){
