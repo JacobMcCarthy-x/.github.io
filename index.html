@@ -11,6 +11,28 @@
     .row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
     .correct { border:2px solid green; }
     .incorrect { border:2px solid red; }
+
+/* Stats panel */
+.stats-panel {
+  position: fixed;
+  right: 0;
+  top: 70px;
+  width: 260px;
+  background: #111827;
+  border-left: 2px solid #374151;
+  padding: 15px;
+  text-align: left;
+  box-shadow: -5px 0 10px rgba(0,0,0,0.5);
+}
+
+.stats-panel h4 {
+  margin-top: 0;
+}
+
+.stats-panel p {
+  margin: 6px 0;
+  font-size: 14px;
+}
   </style>
 </head>
 <body>
@@ -20,10 +42,12 @@
   <button onclick="toggleStatsBar()">Stats</button>
 </header>
 
-<div id="statsBar" style="display:none; background:#111827; padding:10px;">
+<div id="statsBar" class="stats-panel" style="display:none;">
+  <h4>Stats</h4>
   <p id="statAnswers"></p>
   <p id="statCorrect"></p>
   <p id="statPercent"></p>
+  <hr style="border-color:#374151;">
   <p id="statQuizzes"></p>
   <p id="statAced"></p>
   <p id="statPassed"></p>
