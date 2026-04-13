@@ -76,7 +76,7 @@
 </div>
 
 <div id="quizSetup" style="display:none;">
-  <button onclick="backToModes()">Back</button>
+  
   <h3>Quiz Settings</h3>
 
   Questions (5–50)<br>
@@ -100,7 +100,7 @@
 </div>
 
 <div id="quiz" style="display:none;">
-  <button onclick="backToModes()">Back</button>
+  
   <p id="timerDisplay"></p>
   <div class="card"><p id="questionText"></p></div>
   <div id="answers"></div>
@@ -110,7 +110,7 @@
   <h3>Review Incorrect Answers</h3>
   <div id="reviewList"></div>
   <button onclick="showStats()">View Stats</button>
-  <button onclick="goHome()">Back to Home</button>
+  <button onclick="goHome()" id="reviewHomeBtn">Back to Home</button>
 </div>
 
 <div id="stats" style="display:none;">
@@ -195,16 +195,16 @@ function backToModes(){
 }
 
 function goHome(){
-  // hide all sections
-  review.style.display = "none";
-  quiz.style.display = "none";
-  quizSetup.style.display = "none";
-  mode.style.display = "none";
-  statsBar.style.display = "none";
+  review.style.display="none";
+  quiz.style.display="none";
+  quizSetup.style.display="none";
+  mode.style.display="none";
+  home.style.display="block";
+  sectionTitle.style.display="block";
 
-  // show only home
-  home.style.display = "block";
-  sectionTitle.style.display = "block";
+  // hide review button when returning home
+  const btn = document.getElementById("reviewHomeBtn");
+  if(btn) btn.style.display = "none";
 }
 
 // SETTINGS
