@@ -275,11 +275,33 @@ function loadQuestion(){
 function checkAnswer(ans,q){
   totalAnswered++;
 
-  if(ans===q.correct){
+  const buttons = document.querySelectorAll("#answers button");
+
+  buttons.forEach(btn => {
+    btn.disabled = true;
+
+    if(btn.innerText === q.correct){
+      btn.classList.add("correct");
+    }
+
+    if(btn.innerText === ans && ans !== q.correct){
+      btn.classList.add("incorrect");
+    }
+  });
+
+  if(ans === q.correct){
     score++;
     totalCorrect++;
-    if(feedbackOn) alert("Correct");
   } else {
+    incorrectAnswers.push({question:q,selected:ans});
+  }
+
+  // small delay so user can see feedback
+  setTimeout(() => {
+    currentIndex++;
+    loadQuestion();
+  }, 1200);
+} else {
     if(feedbackOn) alert("Incorrect");
     incorrectAnswers.push({question:q,selected:ans});
   }
