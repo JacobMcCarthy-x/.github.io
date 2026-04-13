@@ -35,7 +35,6 @@
     <button onclick="goHome()">Back</button>
   </div>
 
-  <!-- STUDY / FLASHCARDS -->
   <div id="study" style="display:none;">
     <button onclick="backToModes()">Back</button>
     <div class="card" onclick="flipCard()">
@@ -44,28 +43,26 @@
     <button onclick="nextCard()">Next</button>
   </div>
 
-  <!-- QUIZ SETUP -->
   <div id="quizSetup" style="display:none;">
     <button onclick="backToModes()">Back</button>
     <h3>Quiz Settings</h3>
 
-    <div style="margin:10px;">
-      <span>Questions (5–50)</span><br>
+    <div>
+      Questions (5–50)<br>
       <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
       <span id="qCount">10</span>
     </div>
 
-    <div style="margin:10px;">
-      <span>Timer (5–60 minutes)</span><br>
+    <div>
+      Timer (5–60 minutes)<br>
       <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
-      <span id="timerVal">10</span>
-      <br>
+      <span id="timerVal">10</span><br>
       <button onclick="toggleTimer()">Toggle Timer</button>
       <span id="timerStatus">ON</span>
     </div>
 
-    <div style="margin:10px;">
-      <span>Instant Feedback?</span>
+    <div>
+      Instant Feedback?
       <button onclick="toggleFeedback()">Toggle</button>
       <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:10px;"></span>
       <span id="feedbackStatus">ON</span>
@@ -75,12 +72,9 @@
     <button onclick="startQuiz()">Begin Quiz</button>
   </div>
 
-  <!-- QUIZ -->
   <div id="quiz" style="display:none;">
     <button onclick="backToModes()">Back</button>
-    <div class="card">
-      <p id="questionText"></p>
-    </div>
+    <div class="card"><p id="questionText"></p></div>
     <div id="answers"></div>
     <p id="result"></p>
     <p id="score"></p>
@@ -88,370 +82,121 @@
 </div>
 
 <script>
-const flashcards = {
-  "Network+": [ {q: "What port does SSH use?", a: "22"} ],
-  "Security+": [ {q: "CIA triad?", a: "Confidentiality, Integrity, Availability"} ],
+const quizData = {
+  "Network+": [
+    {q:"What port does SSH use?", options:["21","22","80","443"], correct:"22"}
+  ],
+  "Security+": [
+    {q:"CIA triad stands for?", options:["Confidentiality Integrity Availability","Wrong","No","None"], correct:"Confidentiality Integrity Availability"}
+  ],
   "A+ Core 1": [
-    { q: "Which type of RAM is most commonly used in modern desktop computers?", options: ["DDR4","SRAM","RDRAM","VRAM"], correct: "DDR4" },
-    { q: "What does DDR stand for?", options: ["Double Data Rate","Dual Data RAM","Dynamic Data Read","Direct Data Register"], correct: "Double Data Rate" },
-    { q: "Which component converts AC power to DC power in a computer?", options: ["Power Supply Unit","Motherboard","CPU","Transformer"], correct: "Power Supply Unit" },
-    { q: "What is the purpose of a CPU heat sink?", options: ["Increase processing speed","Dissipate heat","Store data","Regulate voltage"], correct: "Dissipate heat" },
-    { q: "Which connector is used for internal SATA drives?", options: ["SATA","Molex","PCIe","IDE"], correct: "SATA" },
-    { q: "Which expansion slot is commonly used for modern graphics cards?", options: ["PCIe x16","PCI","AGP","ISA"], correct: "PCIe x16" },
-    { q: "What is the main difference between HDD and SSD?", options: ["SSD uses flash memory","HDD is faster","SSD has moving parts","HDD is smaller"], correct: "SSD uses flash memory" },
-    { q: "What does BIOS stand for?", options: ["Basic Input Output System","Binary Integrated Operating System","Basic Internal Operating Setup","Boot Initialization Operating System"], correct: "Basic Input Output System" },
-    { q: "What is UEFI?", options: ["A modern replacement for BIOS","A type of RAM","A storage device","A network protocol"], correct: "A modern replacement for BIOS" },
-    { q: "Which cable type is used for digital video output?", options: ["HDMI","VGA","PS/2","Serial"], correct: "HDMI" },
-    { q: "What type of storage uses flash memory?", options: ["SSD","HDD","Tape","Optical"], correct: "SSD" },
-    { q: "What is RAID 1?", options: ["Mirroring","Striping","Parity","Backup only"], correct: "Mirroring" },
-    { q: "What is RAID 0?", options: ["Mirroring","Striping","Parity","Redundancy"], correct: "Striping" },
-    { q: "What is the purpose of thermal paste?", options: ["Improve heat transfer","Store energy","Increase voltage","Clean components"], correct: "Improve heat transfer" },
-    { q: "What connector powers the CPU?", options: ["4/8-pin EPS","SATA","Molex","PCI"], correct: "4/8-pin EPS" },
-    { q: "What is the function of a CMOS battery?", options: ["Maintain BIOS settings","Power the CPU","Cool the system","Store files"], correct: "Maintain BIOS settings" },
-    { q: "What does POST stand for?", options: ["Power-On Self Test","Primary Operating System Test","Power Output System Test","Peripheral Operating Setup Tool"], correct: "Power-On Self Test" },
-    { q: "What is a form factor?", options: ["Physical size/layout of hardware","Type of RAM","Software version","Network protocol"], correct: "Physical size/layout of hardware" },
-    { q: "What is the difference between ATX and Micro-ATX?", options: ["Size and expansion slots","Speed","Power usage","Storage type"], correct: "Size and expansion slots" },
-    { q: "What type of connector is RJ-45?", options: ["Ethernet","Phone","Video","Power"], correct: "Ethernet" },
-    { q: "What does PSU wattage indicate?", options: ["Total power output capacity","Speed","Storage","Voltage only"], correct: "Total power output capacity" },
-    { q: "What is ECC memory used for?", options: ["Error correction","Gaming performance","Graphics rendering","Storage"], correct: "Error correction" },
-    { q: "What is a DIMM?", options: ["Desktop RAM module","CPU type","Storage device","Power cable"], correct: "Desktop RAM module" },
-    { q: "What is a SO-DIMM?", options: ["Laptop RAM module","GPU","Hard drive","Network card"], correct: "Laptop RAM module" },
-    { q: "What is DisplayPort used for?", options: ["Video/audio output","Networking","Power delivery","Storage"], correct: "Video/audio output" },
-
-    { q: "A technician installs new RAM and the system fails to boot with continuous beeping. What is the MOST likely cause?", options: ["Faulty PSU","Improperly seated RAM","Corrupt OS","Overheating CPU"], correct: "Improperly seated RAM" },
-    { q: "A system intermittently shuts down under heavy load. What should be checked FIRST?", options: ["Hard drive health","CPU temperature","Network settings","BIOS version"], correct: "CPU temperature" },
-    { q: "Which RAID level provides redundancy with striping and parity?", options: ["RAID 0","RAID 1","RAID 5","RAID 10"], correct: "RAID 5" },
-    { q: "A user reports slow performance after installing additional RAM. What is the MOST likely issue?", options: ["Mismatched RAM speeds","Too much RAM","SSD failure","GPU bottleneck"], correct: "Mismatched RAM speeds" },
-    { q: "What component is MOST likely to fail due to power surges?", options: ["CPU","PSU","RAM","Case fan"], correct: "PSU" },
-    { q: "A technician replaces a motherboard and the system will not power on. What should be checked FIRST?", options: ["OS installation","Front panel connectors","GPU drivers","Monitor cable"], correct: "Front panel connectors" },
-    { q: "Which connector provides power specifically to PCIe graphics cards?", options: ["Molex","SATA","6/8-pin PCIe","24-pin ATX"], correct: "6/8-pin PCIe" },
-    { q: "A system displays no video but fans spin. What is the MOST likely issue?", options: ["Faulty GPU or RAM","Bad keyboard","Network failure","OS corruption"], correct: "Faulty GPU or RAM" },
-    { q: "What is the PRIMARY purpose of ECC memory in servers?", options: ["Increase speed","Reduce latency","Detect and correct errors","Improve graphics"], correct: "Detect and correct errors" },
-    { q: "A laptop battery drains quickly after a full charge. What is the BEST solution?", options: ["Replace battery","Update BIOS","Add RAM","Reinstall OS"], correct: "Replace battery" },
-    { q: "A user can access websites via IP but not by domain name. What is the issue?", options: ["DHCP failure","DNS issue","NAT problem","Firewall block"], correct: "DNS issue" },
-    { q: "Which device operates at Layer 2 of the OSI model?", options: ["Router","Switch","Firewall","Modem"], correct: "Switch" },
-    { q: "A technician needs to isolate broadcast traffic. What should be implemented?", options: ["VLAN","Hub","Repeater","Bridge loop"], correct: "VLAN" },
-    { q: "What type of IP address is 169.254.x.x?", options: ["Public","Loopback","APIPA","Multicast"], correct: "APIPA" },
-    { q: "A user reports intermittent wireless connectivity. What is the MOST likely cause?", options: ["IP conflict","Interference","DNS failure","NAT issue"], correct: "Interference" },
-    { q: "Which protocol resolves IP addresses to MAC addresses?", options: ["DNS","ARP","DHCP","ICMP"], correct: "ARP" },
-    { q: "What command verifies connectivity to a remote host?", options: ["ipconfig","ping","tracert","netstat"], correct: "ping" },
-    { q: "A network cable is limited to 100 meters. What type is it?", options: ["Fiber","Coax","Cat5e","Serial"], correct: "Cat5e" },
-    { q: "Which wireless standard operates ONLY on 5 GHz?", options: ["802.11b","802.11g","802.11n","802.11ac"], correct: "802.11ac" },
-    { q: "What is the function of NAT?", options: ["Encrypt traffic","Translate private to public IP","Assign IP addresses","Filter packets"], correct: "Translate private to public IP" },
-
-    { q: "A phone cannot connect to cellular network but Wi-Fi works. What is MOST likely?", options: ["Bad SIM","Dead battery","OS corruption","Bluetooth issue"], correct: "Bad SIM" },
-    { q: "What security method uses fingerprint or face recognition?", options: ["Encryption","Biometrics","MFA","Tokenization"], correct: "Biometrics" },
-    { q: "A user wants to share internet via phone. What feature is used?", options: ["NFC","Tethering","VPN","AirDrop"], correct: "Tethering" },
-    { q: "What type of cloud is owned and operated by a third party?", options: ["Private","Public","Hybrid","Community"], correct: "Public" },
-    { q: "What does SaaS provide?", options: ["Hardware","OS control","Software access","Networking only"], correct: "Software access" },
-    { q: "Which port does HTTP use?", options: ["21","22","80","443"], correct: "80" },
-    { q: "Which port is used for HTTPS?", options: ["80","110","443","25"], correct: "443" },
-    { q: "Which port does FTP use (control)?", options: ["20","21","22","23"], correct: "21" },
-    { q: "Which port is SSH?", options: ["21","22","23","25"], correct: "22" },
-    { q: "Which port is Telnet?", options: ["22","23","25","53"], correct: "23" },
-    { q: "Which port is SMTP?", options: ["25","53","110","443"], correct: "25" },
-    { q: "Which port is DNS?", options: ["25","53","80","443"], correct: "53" },
-    { q: "Which port is POP3?", options: ["110","143","389","445"], correct: "110" },
-    { q: "Which port is IMAP?", options: ["110","143","993","995"], correct: "143" },
-    { q: "Which port is LDAP?", options: ["389","443","3389","8080"], correct: "389" },
-    { q: "Which port is RDP?", options: ["22","80","3389","5900"], correct: "3389" },
-    { q: "Which port is SMB?", options: ["135","139","445","389"], correct: "445" },
-    { q: "Which port is SNMP?", options: ["143","161","389","443"], correct: "161" },
-    { q: "Which port is HTTPS (secure web)?", options: ["80","110","443","25"], correct: "443" },
-    { q: "Which port is FTPS?", options: ["21","990","443","22"], correct: "990" },
-    { q: "Which port is SFTP?", options: ["20","21","22","23"], correct: "22" },
-    { q: "Which port is NetBIOS?", options: ["137–139","443","3389","8080"], correct: "137–139" },
-    { q: "Which port is DHCP?", options: ["67/68","53","80","110"], correct: "67/68" },
-    { q: "Which port is TFTP?", options: ["21","69","80","443"], correct: "69" },
-    { q: "Which port is NTP?", options: ["53","123","161","389"], correct: "123" }
-  ], correct: "DDR4" },
-    { q: "What does DDR stand for?", options: ["Double Data Rate","Dual Data RAM","Dynamic Data Read","Direct Data Register"], correct: "Double Data Rate" },
-    { q: "Which component converts AC power to DC power in a computer?", options: ["Power Supply Unit","Motherboard","CPU","Transformer"], correct: "Power Supply Unit" },
-    { q: "What is the purpose of a CPU heat sink?", options: ["Increase processing speed","Dissipate heat","Store data","Regulate voltage"], correct: "Dissipate heat" },
-    { q: "Which connector is used for internal SATA drives?", options: ["SATA","Molex","PCIe","IDE"], correct: "SATA" },
-    { q: "Which expansion slot is commonly used for modern graphics cards?", options: ["PCIe x16","PCI","AGP","ISA"], correct: "PCIe x16" },
-    { q: "What is the main difference between HDD and SSD?", options: ["SSD uses flash memory","HDD is faster","SSD has moving parts","HDD is smaller"], correct: "SSD uses flash memory" },
-    { q: "What does BIOS stand for?", options: ["Basic Input Output System","Binary Integrated Operating System","Basic Internal Operating Setup","Boot Initialization Operating System"], correct: "Basic Input Output System" },
-    { q: "What is UEFI?", options: ["A modern replacement for BIOS","A type of RAM","A storage device","A network protocol"], correct: "A modern replacement for BIOS" },
-    { q: "Which cable type is used for digital video output?", options: ["HDMI","VGA","PS/2","Serial"], correct: "HDMI" },
-    { q: "What type of storage uses flash memory?", options: ["SSD","HDD","Tape","Optical"], correct: "SSD" },
-    { q: "What is RAID 1?", options: ["Mirroring","Striping","Parity","Backup only"], correct: "Mirroring" },
-    { q: "What is RAID 0?", options: ["Mirroring","Striping","Parity","Redundancy"], correct: "Striping" },
-    { q: "What is the purpose of thermal paste?", options: ["Improve heat transfer","Store energy","Increase voltage","Clean components"], correct: "Improve heat transfer" },
-    { q: "What connector powers the CPU?", options: ["4/8-pin EPS","SATA","Molex","PCI"], correct: "4/8-pin EPS" },
-    { q: "What is the function of a CMOS battery?", options: ["Maintain BIOS settings","Power the CPU","Cool the system","Store files"], correct: "Maintain BIOS settings" },
-    { q: "What does POST stand for?", options: ["Power-On Self Test","Primary Operating System Test","Power Output System Test","Peripheral Operating Setup Tool"], correct: "Power-On Self Test" },
-    { q: "What is a form factor?", options: ["Physical size/layout of hardware","Type of RAM","Software version","Network protocol"], correct: "Physical size/layout of hardware" },
-    { q: "What is the difference between ATX and Micro-ATX?", options: ["Size and expansion slots","Speed","Power usage","Storage type"], correct: "Size and expansion slots" },
-    { q: "What type of connector is RJ-45?", options: ["Ethernet","Phone","Video","Power"], correct: "Ethernet" },
-    { q: "What does PSU wattage indicate?", options: ["Total power output capacity","Speed","Storage","Voltage only"], correct: "Total power output capacity" },
-    { q: "What is ECC memory used for?", options: ["Error correction","Gaming performance","Graphics rendering","Storage"], correct: "Error correction" },
-    { q: "What is a DIMM?", options: ["Desktop RAM module","CPU type","Storage device","Power cable"], correct: "Desktop RAM module" },
-    { q: "What is a SO-DIMM?", options: ["Laptop RAM module","GPU","Hard drive","Network card"], correct: "Laptop RAM module" },
-    { q: "What is DisplayPort used for?", options: ["Video/audio output","Networking","Power delivery","Storage"], correct: "Video/audio output" },
-
-    { q: "A technician installs new RAM and the system fails to boot with continuous beeping. What is the MOST likely cause?", options: ["Faulty PSU","Improperly seated RAM","Corrupt OS","Overheating CPU"], correct: "Improperly seated RAM" },
-    { q: "A system intermittently shuts down under heavy load. What should be checked FIRST?", options: ["Hard drive health","CPU temperature","Network settings","BIOS version"], correct: "CPU temperature" },
-    { q: "Which RAID level provides redundancy with striping and parity?", options: ["RAID 0","RAID 1","RAID 5","RAID 10"], correct: "RAID 5" },
-    { q: "A user reports slow performance after installing additional RAM. What is the MOST likely issue?", options: ["Mismatched RAM speeds","Too much RAM","SSD failure","GPU bottleneck"], correct: "Mismatched RAM speeds" },
-    { q: "What component is MOST likely to fail due to power surges?", options: ["CPU","PSU","RAM","Case fan"], correct: "PSU" },
-    { q: "A technician replaces a motherboard and the system will not power on. What should be checked FIRST?", options: ["OS installation","Front panel connectors","GPU drivers","Monitor cable"], correct: "Front panel connectors" },
-    { q: "Which connector provides power specifically to PCIe graphics cards?", options: ["Molex","SATA","6/8-pin PCIe","24-pin ATX"], correct: "6/8-pin PCIe" },
-    { q: "A system displays no video but fans spin. What is the MOST likely issue?", options: ["Faulty GPU or RAM","Bad keyboard","Network failure","OS corruption"], correct: "Faulty GPU or RAM" },
-    { q: "What is the PRIMARY purpose of ECC memory in servers?", options: ["Increase speed","Reduce latency","Detect and correct errors","Improve graphics"], correct: "Detect and correct errors" },
-    { q: "A laptop battery drains quickly after a full charge. What is the BEST solution?", options: ["Replace battery","Update BIOS","Add RAM","Reinstall OS"], correct: "Replace battery" },
-    { q: "A user can access websites via IP but not by domain name. What is the issue?", options: ["DHCP failure","DNS issue","NAT problem","Firewall block"], correct: "DNS issue" },
-    { q: "Which device operates at Layer 2 of the OSI model?", options: ["Router","Switch","Firewall","Modem"], correct: "Switch" },
-    { q: "A technician needs to isolate broadcast traffic. What should be implemented?", options: ["VLAN","Hub","Repeater","Bridge loop"], correct: "VLAN" },
-    { q: "What type of IP address is 169.254.x.x?", options: ["Public","Loopback","APIPA","Multicast"], correct: "APIPA" },
-    { q: "A user reports intermittent wireless connectivity. What is the MOST likely cause?", options: ["IP conflict","Interference","DNS failure","NAT issue"], correct: "Interference" },
-    { q: "Which protocol resolves IP addresses to MAC addresses?", options: ["DNS","ARP","DHCP","ICMP"], correct: "ARP" },
-    { q: "What command verifies connectivity to a remote host?", options: ["ipconfig","ping","tracert","netstat"], correct: "ping" },
-    { q: "A network cable is limited to 100 meters. What type is it?", options: ["Fiber","Coax","Cat5e","Serial"], correct: "Cat5e" },
-    { q: "Which wireless standard operates ONLY on 5 GHz?", options: ["802.11b","802.11g","802.11n","802.11ac"], correct: "802.11ac" },
-    { q: "What is the function of NAT?", options: ["Encrypt traffic","Translate private to public IP","Assign IP addresses","Filter packets"], correct: "Translate private to public IP" }
+    {q:"Which type of RAM is most commonly used in modern desktop computers?", options:["DDR4","SRAM","RDRAM","VRAM"], correct:"DDR4"},
+    {q:"What does DDR stand for?", options:["Double Data Rate","Dual Data RAM","Dynamic Data Read","Direct Data Register"], correct:"Double Data Rate"},
+    {q:"Which component converts AC power to DC power in a computer?", options:["Power Supply Unit","Motherboard","CPU","Transformer"], correct:"Power Supply Unit"},
+    {q:"What is the purpose of a CPU heat sink?", options:["Increase processing speed","Dissipate heat","Store data","Regulate voltage"], correct:"Dissipate heat"},
+    {q:"Which port does HTTP use?", options:["21","22","80","443"], correct:"80"},
+    {q:"Which port is HTTPS?", options:["80","110","443","25"], correct:"443"},
+    {q:"Which port is SSH?", options:["21","22","23","25"], correct:"22"},
+    {q:"Which port is DNS?", options:["25","53","80","443"], correct:"53"},
+    {q:"A technician installs new RAM and system beeps. Likely cause?", options:["Faulty PSU","Improperly seated RAM","Corrupt OS","Overheating CPU"], correct:"Improperly seated RAM"},
+    {q:"A system shuts down under load. Check first?", options:["Hard drive","CPU temperature","Network","BIOS"], correct:"CPU temperature"},
+    {q:"RAID level with striping + parity?", options:["RAID 0","RAID 1","RAID 5","RAID 10"], correct:"RAID 5"},
+    {q:"ECC memory purpose?", options:["Speed","Latency","Error correction","Graphics"], correct:"Error correction"},
+    {q:"Phone can't connect cellular but WiFi works?", options:["Bad SIM","Dead battery","OS","Bluetooth"], correct:"Bad SIM"},
+    {q:"Fingerprint login type?", options:["Encryption","Biometrics","MFA","Token"], correct:"Biometrics"},
+    {q:"Share internet via phone?", options:["NFC","Tethering","VPN","AirDrop"], correct:"Tethering"},
+    {q:"Cloud owned by third party?", options:["Private","Public","Hybrid","Community"], correct:"Public"}
   ],
   "A+ Core 2": []
 };
 
-const quizData = {
-  "Network+": [ {q: "What port does SSH use?", options: ["21","22","80","443"], correct: "22"} ],
-  "Security+": [ {q: "CIA triad stands for?", options: ["Confidentiality Integrity Availability","Wrong","No","None"], correct: "Confidentiality Integrity Availability"} ],
-  "A+ Core 1": quizDataAPlusCore1,
-  "A+ Core 2": []
-};
+let currentSection="";
+let shuffledQuestions=[];
+let currentIndex=0;
+let score=0;
+let totalQuestions=10;
+let timer=600;
+let timerInterval=null;
+let timerEnabled=true;
+let feedbackOn=true;
 
-let currentSection = "";
-let shuffledQuestions = [];
-let currentIndex = 0;
-let score = 0;
-let totalQuestions = 10;
-let timer = 600; // default 10 min
-let timerInterval = null;
-let timerEnabled = true;
-let feedbackOn = true;
-let flipped = false;
-
-function selectSection(section) {
-  currentSection = section;
-  document.getElementById("home").style.display = "none";
-  document.getElementById("mode").style.display = "block";
-  document.getElementById("modeTitle").innerText = "Section: " + section;
-  document.getElementById("sectionTitle").style.display = "none";
+function selectSection(section){
+  currentSection=section;
+  document.getElementById("home").style.display="none";
+  document.getElementById("mode").style.display="block";
+  document.getElementById("modeTitle").innerText="Section: "+section;
+  document.getElementById("sectionTitle").style.display="none";
 }
 
-function startMode(mode) {
-  document.getElementById("mode").style.display = "none";
-
-  if (mode === 'flashcard' || mode === 'study') {
-    document.getElementById("study").style.display = "block";
-    currentIndex = 0;
-    flipped = false;
-    showCard();
-  }
-
-  if (mode === 'test') {
-    document.getElementById("quiz").style.display = "block";
-    currentIndex = 0;
-    score = 0;
-    loadQuestion();
-  }
+function startMode(mode){
+  document.getElementById("mode").style.display="none";
 }
 
-function openQuizSetup() {
-  document.getElementById("mode").style.display = "none";
-  document.getElementById("quizSetup").style.display = "block";
+function openQuizSetup(){
+  document.getElementById("mode").style.display="none";
+  document.getElementById("quizSetup").style.display="block";
 }
 
-function updateQCount(val) {
-  totalQuestions = parseInt(val);
-  document.getElementById("qCount").innerText = val;
+function updateQCount(val){totalQuestions=parseInt(val);document.getElementById("qCount").innerText=val;}
+function updateTimer(val){timer=parseInt(val)*60;document.getElementById("timerVal").innerText=val;}
+function toggleTimer(){timerEnabled=!timerEnabled;document.getElementById("timerStatus").innerText=timerEnabled?"ON":"OFF";}
+function toggleFeedback(){feedbackOn=!feedbackOn;document.getElementById("feedbackStatus").innerText=feedbackOn?"ON":"OFF";document.getElementById("feedbackIndicator").style.background=feedbackOn?"green":"red";}
+
+function startQuiz(){
+  document.getElementById("quizSetup").style.display="none";
+  document.getElementById("quiz").style.display="block";
+  currentIndex=0;score=0;
+  shuffledQuestions=shuffle([...quizData[currentSection]]);
+  startTimer();loadQuestion();
 }
 
-function updateTimer(val) {
-  timer = parseInt(val) * 60;
-  document.getElementById("timerVal").innerText = val;
-}
-
-function toggleTimer() {
-  timerEnabled = !timerEnabled;
-  document.getElementById("timerStatus").innerText = timerEnabled ? "ON" : "OFF";
-}
-
-function toggleFeedback() {
-  feedbackOn = !feedbackOn;
-  document.getElementById("feedbackStatus").innerText = feedbackOn ? "ON" : "OFF";
-  const indicator = document.getElementById("feedbackIndicator");
-  indicator.style.background = feedbackOn ? "green" : "red";
-}
-
-function startQuiz() {
-  document.getElementById("quizSetup").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-  currentIndex = 0;
-  score = 0;
-
-  // shuffle questions
-  const original = quizData[currentSection] || [];
-  shuffledQuestions = shuffleArray([...original]);
-
-  startTimer();
-  loadQuestion();
-}
-
-function startTimer() {
+function startTimer(){
   clearInterval(timerInterval);
-  if (!timerEnabled) return;
-  timerInterval = setInterval(() => {
-    if (timer <= 0) {
-      clearInterval(timerInterval);
-      endQuiz();
-      return;
-    }
+  if(!timerEnabled) return;
+  timerInterval=setInterval(()=>{
+    if(timer<=0){clearInterval(timerInterval);endQuiz();return;}
     timer--;
-    document.getElementById("score").innerText = "Time Left: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
-  }, 1000);
+    document.getElementById("score").innerText="Time Left: "+Math.floor(timer/60)+":"+(timer%60).toString().padStart(2,'0');
+  },1000);
 }
 
-function endQuiz() {
-  document.getElementById("questionText").innerText = "Time's up";
-  document.getElementById("answers").innerHTML = "";
-  showFinalScore();
-}
-
-function loadQuestion() {
-  const data = shuffledQuestions;
-
-  if (!data || currentIndex >= totalQuestions || currentIndex >= data.length) {
-    document.getElementById("questionText").innerText = "Quiz finished";
-    document.getElementById("answers").innerHTML = "";
-    showFinalScore();
-    return;
-  }
-
-  const q = data[currentIndex];
-  document.getElementById("questionText").innerText = q.q;
-
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-
-  // shuffle answers
-  const shuffledOptions = shuffleArray([...q.options]);
-
-  shuffledOptions.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => checkAnswer(opt);
-    answersDiv.appendChild(btn);
+function loadQuestion(){
+  if(currentIndex>=totalQuestions||currentIndex>=shuffledQuestions.length){endQuiz();return;}
+  const q=shuffledQuestions[currentIndex];
+  document.getElementById("questionText").innerText=q.q;
+  const answers=document.getElementById("answers");answers.innerHTML="";
+  shuffle([...q.options]).forEach(opt=>{
+    const b=document.createElement("button");b.innerText=opt;b.onclick=()=>checkAnswer(opt);answers.appendChild(b);
   });
 }
 
-  const q = data[currentIndex];
-  document.getElementById("questionText").innerText = q.q;
-
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-
-  q.options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => checkAnswer(opt);
-    answersDiv.appendChild(btn);
-  });
+function checkAnswer(a){
+  if(a===shuffledQuestions[currentIndex].correct){score++;if(feedbackOn)document.getElementById("result").innerText="Correct";}
+  else if(feedbackOn)document.getElementById("result").innerText="Incorrect";
+  setTimeout(()=>{document.getElementById("result").innerText="";currentIndex++;loadQuestion();},feedbackOn?800:0);
 }
 
-function checkAnswer(answer) {
-  const correct = shuffledQuestions[currentIndex].correct;
-
-  if (answer === correct) {
-    score++;
-    if (feedbackOn) document.getElementById("result").innerText = "Correct";
-  } else {
-    if (feedbackOn) document.getElementById("result").innerText = "Incorrect";
-  }
-
-  setTimeout(() => {
-    document.getElementById("result").innerText = "";
-    currentIndex++;
-    loadQuestion();
-  }, feedbackOn ? 1000 : 0);
-} else {
-    if (feedbackOn) document.getElementById("result").innerText = "Incorrect";
-  }
-
-  setTimeout(() => {
-    document.getElementById("result").innerText = "";
-    currentIndex++;
-    loadQuestion();
-  }, feedbackOn ? 1000 : 0);
+function endQuiz(){
+  const total=Math.min(totalQuestions,shuffledQuestions.length);
+  const percent=total?((score/total)*100).toFixed(1):0;
+  document.getElementById("questionText").innerText="Finished";
+  document.getElementById("answers").innerHTML="";
+  document.getElementById("score").innerText=`Score: ${score}/${total} (${percent}%)`;
 }
 
-function showFinalScore() {
-  const total = Math.min(totalQuestions, shuffledQuestions.length);
-  const percent = total > 0 ? ((score / total) * 100).toFixed(1) : 0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-  document.getElementById("score").innerText = `Score: ${score} / ${total} (${percent}%)`;
-} / ${total} (${percent}%)`;
-} else {
-    if (feedbackOn) document.getElementById("result").innerText = "Incorrect";
-  }
-
-  setTimeout(() => {
-    document.getElementById("result").innerText = "";
-    currentIndex++;
-    loadQuestion();
-  }, feedbackOn ? 1000 : 0);
+function backToModes(){
+  document.getElementById("quiz").style.display="none";
+  document.getElementById("quizSetup").style.display="none";
+  document.getElementById("mode").style.display="block";
 }
 
-function showCard() {
-  const cards = flashcards[currentSection];
-  if (!cards || cards.length === 0) {
-    document.getElementById("cardText").innerText = "No flashcards";
-    return;
-  }
-  document.getElementById("cardText").innerText = cards[currentIndex].q;
+function goHome(){
+  document.getElementById("mode").style.display="none";
+  document.getElementById("home").style.display="block";
+  document.getElementById("sectionTitle").style.display="block";
 }
-
-function flipCard() {
-  const cards = flashcards[currentSection];
-  if (!cards || cards.length === 0) return;
-  const text = document.getElementById("cardText");
-  if (!flipped) {
-    text.innerText = cards[currentIndex].a;
-    flipped = true;
-  } else {
-    text.innerText = cards[currentIndex].q;
-    flipped = false;
-  }
-}
-
-function nextCard() {
-  const cards = flashcards[currentSection];
-  if (!cards || cards.length === 0) return;
-  currentIndex = (currentIndex + 1) % cards.length;
-  showCard();
-}
-
-function backToModes() {
-  document.getElementById("study").style.display = "none";
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("quizSetup").style.display = "none";
-  document.getElementById("mode").style.display = "block";
-}
-
-function goHome() {
-  document.getElementById("mode").style.display = "none";
-  document.getElementById("home").style.display = "block";
-  document.getElementById("sectionTitle").style.display = "block";
-}
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
 </script>
 
 </body>
