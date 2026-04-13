@@ -78,6 +78,8 @@
     <button onclick="startMode('test')">Test</button>
   </div>
 
+</div>
+
   <br>
   <button onclick="goHome()">Back</button>
 </div>
@@ -116,6 +118,10 @@
 <div id="review" style="display:none;">
   <h3>Review Incorrect Answers</h3>
   <div id="reviewList"></div>
+  <button onclick="goHome()" id="reviewHomeBtn">Back to Home</button>
+
+  <h3>Review Incorrect Answers</h3>
+  <div id="reviewList"></div>
   
   <button onclick="goHome()" id="reviewHomeBtn">Back to Home</button>
 </div>
@@ -125,9 +131,9 @@
   <p id="statTotal"></p>
   <p id="statCorrect"></p>
   <p id="statAccuracy"></p>
-  <button onclick="goHome()">Back to Home</button>
+  
 </div>
-  <button onclick="goHome()">Back to Home</button>
+  
 </div>
 
 </div>
@@ -195,12 +201,6 @@ function openQuizSetup(){
   quizSetup.style.display="block";
 }
 
-function backToModes(){
-  quiz.style.display="none";
-  quizSetup.style.display="none";
-  mode.style.display="block";
-}
-
 function goHome(){
   review.style.display="none";
   quiz.style.display="none";
@@ -208,13 +208,8 @@ function goHome(){
   mode.style.display="none";
   home.style.display="block";
   sectionTitle.style.display="block";
-
-  // hide review button when returning home
-  const btn = document.getElementById("reviewHomeBtn");
-  if(btn) btn.style.display = "none";
 }
 
-// SETTINGS
 function updateQCount(v){ totalQuestions=parseInt(v); qCount.innerText=v; }
 function updateTimer(v){ timer=parseInt(v)*60; timerVal.innerText=v; }
 
@@ -230,7 +225,6 @@ function toggleFeedback(){
   feedbackIndicator.style.background=feedbackOn?"green":"red";
 }
 
-// QUIZ
 function startQuiz(){
   quizSetup.style.display="none";
   quiz.style.display="block";
@@ -296,18 +290,10 @@ function checkAnswer(ans,q){
     incorrectAnswers.push({question:q,selected:ans});
   }
 
-  // small delay so user can see feedback
   setTimeout(() => {
     currentIndex++;
     loadQuestion();
   }, 1200);
-} else {
-    if(feedbackOn) alert("Incorrect");
-    incorrectAnswers.push({question:q,selected:ans});
-  }
-
-  currentIndex++;
-  loadQuestion();
 }
 
 function endQuiz(){
@@ -343,7 +329,6 @@ function endQuiz(){
   });
 }
 
-// STATS
 function toggleStatsBar(){
   statsBar.style.display = statsBar.style.display === "none" ? "block" : "none";
 
@@ -374,13 +359,17 @@ function confirmReset(){
 
   document.getElementById("resetConfirm").style.display = "none";
 
-  // refresh stats display
   toggleStatsBar();
   toggleStatsBar();
 }
 
-// UTIL
 function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}(a){
   for(let i=a.length-1;i>0;i--){
     let j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
