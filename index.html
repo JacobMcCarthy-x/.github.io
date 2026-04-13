@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CompTIA Study Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+    header {
+      padding: 20px;
+      background: #1e293b;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>CompTIA Study Hub</header>
+
+<div class="container">
+  <h2 id="sectionTitle">Select a Section</h2>
+
+  <div id="home">
+    <button onclick="loadSection('A+ Core 1')">A+ Core 1</button>
+    <button onclick="loadSection('A+ Core 2')">A+ Core 2</button>
+  </div>
+
+  <div id="study" style="display:none;">
+    <button onclick="goHome()">⬅ Back</button>
+    <div class="card" onclick="flipCard()">
+      <p id="cardText"></p>
+    </div>
+    <button onclick="nextCard()">Next</button>
+  </div>
+</div>
+
+<script>
+const flashcards = {
+  "A+ Core 1": [
+    {q: "What port does HTTP use?", a: "80"},
+    {q: "What port does HTTPS use?", a: "443"},
+    {q: "What does CPU stand for?", a: "Central Processing Unit"}
+  ],
+  "A+ Core 2": [
+    {q: "What is Windows Safe Mode?", a: "A diagnostic startup mode"},
+    {q: "What does OS stand for?", a: "Operating System"}
+  ]
+};
+
+let currentSection = "";
+let currentIndex = 0;
+let flipped = false;
+
+function loadSection(section) {
+  currentSection = section;
+  currentIndex = 0;
+  flipped = false;
+  document.getElementById("home").style.display = "none";
+  document.getElementById("study").style.display = "block";
+  document.getElementById("sectionTitle").innerText = section;
+  showCard();
+}
+
+function goHome() {
+  document.getElementById("home").style.display = "block";
+  document.getElementById("study").style.display = "none";
+  document.getElementById("sectionTitle").innerText = "Select a Section";
+}
+
+function showCard() {
+  const card = flashcards[currentSection][currentIndex];
+  document.getElementById("cardText").innerText = card.q;
+  flipped = false;
+}
+
+function flipCard() {
+  const card = flashcards[currentSection][currentIndex];
+  const text = document.getElementById("cardText");
+
+  if (!flipped) {
+    text.innerText = card.a;
+    flipped = true;
+  } else {
+    text.innerText = card.q;
+    flipped = false;
+  }
+}
+
+function nextCard() {
+  currentIndex = (currentIndex + 1) % flashcards[currentSection].length;
+  showCard();
+}
+</script>
+
+</body>
+</html>
