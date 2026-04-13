@@ -3,43 +3,11 @@
 <head>
   <title>CompTIA Certification Lab</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      margin: 0;
-    }
-    header {
-      padding: 20px;
-      background: #1e293b;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .container {
-      padding: 20px;
-    }
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .card:hover {
-      transform: scale(1.05);
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #3b82f6;
-      color: white;
-      cursor: pointer;
-    }
+    body { font-family: Arial; background: #0f172a; color: white; text-align: center; margin: 0; }
+    header { padding: 20px; background: #1e293b; font-size: 24px; }
+    .container { padding: 20px; }
+    .card { background: #1e293b; padding: 20px; margin: 20px auto; width: 300px; border-radius: 10px; }
+    button { padding: 10px; margin: 5px; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -50,90 +18,146 @@
   <h2 id="sectionTitle">Select a Section</h2>
 
   <div id="home">
-    <button onclick="loadSection('A+ Core 1')">A+ Core 1</button>
-    <button onclick="loadSection('A+ Core 2')">A+ Core 2</button>
-    <button onclick="loadSection('Network+')">Network+</button>
-    <button onclick="loadSection('Security+')">Security+</button>
+    <button onclick="selectSection('Network+')">Network+</button>
+    <button onclick="selectSection('Security+')">Security+</button>
   </div>
 
-  <div id="study" style="display:none;">
-    <button onclick="goHome()">⬅ Back</button>
-    <div class="card" onclick="flipCard()">
-      <p id="cardText"></p>
+  <div id="mode" style="display:none;">
+    <button onclick="goHome()">Back</button>
+    <h3 id="modeTitle"></h3>
+    <button onclick="openQuizSetup()">Quiz</button>
+  </div>
+
+  <!-- QUIZ SETUP -->
+  <div id="quizSetup" style="display:none;">
+    <button onclick="backToModes()">Back</button>
+    <h3>Quiz Settings</h3>
+
+    <p>Number of Questions: <span id="qCount">10</span></p>
+    <input type="range" min="5" max="50" value="10" onchange="updateQCount(this.value)">
+
+    <p>Timer (minutes): <span id="timerVal">10</span></p>
+    <input type="range" min="5" max="60" value="10" onchange="updateTimer(this.value)">
+
+    <br>
+    <button onclick="toggleFeedback()">Toggle Instant Feedback</button>
+    <p id="feedbackStatus">Feedback: ON</p>
+
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none;">
+    <button onclick="backToModes()">Back</button>
+    <div class="card">
+      <p id="questionText"></p>
     </div>
-    <button onclick="nextCard()">Next</button>
+    <div id="answers"></div>
+    <p id="result"></p>
+    <p id="score"></p>
   </div>
 </div>
 
 <script>
-const flashcards = {
-  "A+ Core 1": [],
-  "A+ Core 2": [],
+const quizData = {
   "Network+": [
-    {q: "What port does SSH use?", a: "22"}
+    {q: "What port does SSH use?", options: ["21","22","80","443"], correct: "22"}
   ],
   "Security+": [
-    {q: "What does CIA triad stand for?", a: "Confidentiality, Integrity, Availability"}
+    {q: "CIA triad stands for?", options: ["Confidentiality Integrity Availability","Wrong","No","None"], correct: "Confidentiality Integrity Availability"}
   ]
 };
 
 let currentSection = "";
 let currentIndex = 0;
-let flipped = false;
+let score = 0;
+let totalQuestions = 10;
+let feedbackOn = true;
 
-function loadSection(section) {
+function selectSection(section) {
   currentSection = section;
-  currentIndex = 0;
-  flipped = false;
   document.getElementById("home").style.display = "none";
-  document.getElementById("study").style.display = "block";
-  document.getElementById("sectionTitle").innerText = section;
-  showCard();
+  document.getElementById("mode").style.display = "block";
+  document.getElementById("modeTitle").innerText = section;
 }
 
-function goHome() {
-  document.getElementById("home").style.display = "block";
-  document.getElementById("study").style.display = "none";
-  document.getElementById("sectionTitle").innerText = "Select a Section";
+function openQuizSetup() {
+  document.getElementById("mode").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
 }
 
-function showCard() {
-  const cards = flashcards[currentSection];
+function updateQCount(val) {
+  totalQuestions = val;
+  document.getElementById("qCount").innerText = val;
+}
 
-  if (cards.length === 0) {
-    document.getElementById("cardText").innerText = "No flashcards added yet";
+function updateTimer(val) {
+  document.getElementById("timerVal").innerText = val;
+}
+
+function toggleFeedback() {
+  feedbackOn = !feedbackOn;
+  document.getElementById("feedbackStatus").innerText = "Feedback: " + (feedbackOn ? "ON" : "OFF");
+}
+
+function startQuiz() {
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  currentIndex = 0;
+  score = 0;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const data = quizData[currentSection];
+
+  if (!data || currentIndex >= totalQuestions || currentIndex >= data.length) {
+    document.getElementById("questionText").innerText = "Quiz finished";
+    document.getElementById("answers").innerHTML = "";
+    document.getElementById("score").innerText = "Score: " + score;
     return;
   }
 
-  const card = cards[currentIndex];
-  document.getElementById("cardText").innerText = card.q;
-  flipped = false;
+  const q = data[currentIndex];
+  document.getElementById("questionText").innerText = q.q;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(opt);
+    answersDiv.appendChild(btn);
+  });
 }
 
-function flipCard() {
-  const cards = flashcards[currentSection];
+function checkAnswer(answer) {
+  const correct = quizData[currentSection][currentIndex].correct;
 
-  if (cards.length === 0) return;
-
-  const card = cards[currentIndex];
-  const text = document.getElementById("cardText");
-
-  if (!flipped) {
-    text.innerText = card.a;
-    flipped = true;
+  if (answer === correct) {
+    score++;
+    if (feedbackOn) document.getElementById("result").innerText = "Correct";
   } else {
-    text.innerText = card.q;
-    flipped = false;
+    if (feedbackOn) document.getElementById("result").innerText = "Incorrect";
   }
+
+  setTimeout(() => {
+    document.getElementById("result").innerText = "";
+    currentIndex++;
+    loadQuestion();
+  }, feedbackOn ? 1000 : 0);
 }
 
-function nextCard() {
-  const cards = flashcards[currentSection];
+function backToModes() {
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("mode").style.display = "block";
+}
 
-  if (cards.length === 0) return;
-
-  currentIndex = (currentIndex + 1) % cards.length;
-  showCard();
+function goHome() {
+  document.getElementById("mode").style.display = "none";
+  document.getElementById("home").style.display = "block";
 }
 </script>
 
