@@ -27,8 +27,6 @@
   <div id="mode" style="display:none;">
     <h3 id="modeTitle"></h3>
 
-    <p id="sectionLabel"></p>
-
     <button onclick="startMode('flashcard')">Flashcards</button><br>
     <button onclick="startMode('study')">Study</button><br>
     <button onclick="openQuizSetup()">Quiz</button><br>
@@ -53,13 +51,13 @@
 
     <div style="margin:10px;">
       <span>Questions (5–50)</span><br>
-      <input type="range" min="5" max="50" value="10" onchange="updateQCount(this.value)">
+      <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
       <span id="qCount">10</span>
     </div>
 
     <div style="margin:10px;">
       <span>Timer (5–60 minutes)</span><br>
-      <input type="range" min="5" max="60" value="10" onchange="updateTimer(this.value)">
+      <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
       <span id="timerVal">10</span>
       <br>
       <button onclick="toggleTimer()">Toggle Timer</button>
@@ -108,10 +106,10 @@ let currentSection = "";
 let currentIndex = 0;
 let score = 0;
 let totalQuestions = 10;
-let timer = 0;
+let timer = 600; // default 10 min
 let timerInterval = null;
-let feedbackOn = true;
 let timerEnabled = true;
+let feedbackOn = true;
 let flipped = false;
 
 function selectSection(section) {
@@ -146,12 +144,12 @@ function openQuizSetup() {
 }
 
 function updateQCount(val) {
-  totalQuestions = val;
+  totalQuestions = parseInt(val);
   document.getElementById("qCount").innerText = val;
 }
 
 function updateTimer(val) {
-  timer = val * 60;
+  timer = parseInt(val) * 60;
   document.getElementById("timerVal").innerText = val;
 }
 
@@ -177,18 +175,14 @@ function startQuiz() {
 }
 
 function startTimer() {
-  if (!timerEnabled) return;
   clearInterval(timerInterval);
+  if (!timerEnabled) return;
   timerInterval = setInterval(() => {
     if (timer <= 0) {
       clearInterval(timerInterval);
       endQuiz();
       return;
     }
-    timer--;
-    document.getElementById("score").innerText = "Time Left: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
-  }, 1000);
-}
     timer--;
     document.getElementById("score").innerText = "Time Left: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
   }, 1000);
