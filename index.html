@@ -33,6 +33,15 @@
     <button onclick="startMode('test')">Test</button>
   </div>
 
+  <!-- STUDY / FLASHCARDS -->
+  <div id="study" style="display:none;">
+    <button onclick="backToModes()">Back</button>
+    <div class="card" onclick="flipCard()">
+      <p id="cardText"></p>
+    </div>
+    <button onclick="nextCard()">Next</button>
+  </div>
+
   <!-- QUIZ SETUP -->
   <div id="quizSetup" style="display:none;">
     <button onclick="backToModes()">Back</button>
@@ -68,13 +77,18 @@
 </div>
 
 <script>
+const flashcards = {
+  "Network+": [ {q: "What port does SSH use?", a: "22"} ],
+  "Security+": [ {q: "CIA triad?", a: "Confidentiality, Integrity, Availability"} ],
+  "A+ Core 1": [],
+  "A+ Core 2": []
+};
+
 const quizData = {
-  "Network+": [
-    {q: "What port does SSH use?", options: ["21","22","80","443"], correct: "22"}
-  ],
-  "Security+": [
-    {q: "CIA triad stands for?", options: ["Confidentiality Integrity Availability","Wrong","No","None"], correct: "Confidentiality Integrity Availability"}
-  ]
+  "Network+": [ {q: "What port does SSH use?", options: ["21","22","80","443"], correct: "22"} ],
+  "Security+": [ {q: "CIA triad stands for?", options: ["Confidentiality Integrity Availability","Wrong","No","None"], correct: "Confidentiality Integrity Availability"} ],
+  "A+ Core 1": [],
+  "A+ Core 2": []
 };
 
 let currentSection = "";
@@ -84,12 +98,31 @@ let totalQuestions = 10;
 let timer = 0;
 let timerInterval = null;
 let feedbackOn = true;
+let flipped = false;
 
 function selectSection(section) {
   currentSection = section;
   document.getElementById("home").style.display = "none";
   document.getElementById("mode").style.display = "block";
   document.getElementById("modeTitle").innerText = section;
+}
+
+function startMode(mode) {
+  document.getElementById("mode").style.display = "none";
+
+  if (mode === 'flashcard' || mode === 'study') {
+    document.getElementById("study").style.display = "block";
+    currentIndex = 0;
+    flipped = false;
+    showCard();
+  }
+
+  if (mode === 'test') {
+    document.getElementById("quiz").style.display = "block";
+    currentIndex = 0;
+    score = 0;
+    loadQuestion();
+  }
 }
 
 function openQuizSetup() {
@@ -103,24 +136,15 @@ function updateQCount(val) {
 }
 
 function updateTimer(val) {
-  timer = val * 60; // convert minutes to seconds
+  timer = val * 60;
   document.getElementById("timerVal").innerText = val;
 }
 
 function toggleFeedback() {
   feedbackOn = !feedbackOn;
   document.getElementById("feedbackStatus").innerText = "Feedback: " + (feedbackOn ? "ON" : "OFF");
-
   const indicator = document.getElementById("feedbackIndicator");
   indicator.style.background = feedbackOn ? "green" : "red";
-
-  indicator.animate([
-    { transform: 'scale(1)' },
-    { transform: 'scale(1.5)' },
-    { transform: 'scale(1)' }
-  ], {
-    duration: 300
-  });
 }
 
 function startQuiz() {
@@ -128,9 +152,7 @@ function startQuiz() {
   document.getElementById("quiz").style.display = "block";
   currentIndex = 0;
   score = 0;
-
   startTimer();
-
   loadQuestion();
 }
 
@@ -152,16 +174,9 @@ function endQuiz() {
   document.getElementById("answers").innerHTML = "";
   document.getElementById("score").innerText = "Final Score: " + score;
 }
-  document.getElementById("quizSetup").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-  currentIndex = 0;
-  score = 0;
-  loadQuestion();
-}
 
 function loadQuestion() {
   const data = quizData[currentSection];
-
   if (!data || currentIndex >= totalQuestions || currentIndex >= data.length) {
     document.getElementById("questionText").innerText = "Quiz finished";
     document.getElementById("answers").innerHTML = "";
@@ -185,7 +200,6 @@ function loadQuestion() {
 
 function checkAnswer(answer) {
   const correct = quizData[currentSection][currentIndex].correct;
-
   if (answer === correct) {
     score++;
     if (feedbackOn) document.getElementById("result").innerText = "Correct";
@@ -200,7 +214,37 @@ function checkAnswer(answer) {
   }, feedbackOn ? 1000 : 0);
 }
 
+function showCard() {
+  const cards = flashcards[currentSection];
+  if (!cards || cards.length === 0) {
+    document.getElementById("cardText").innerText = "No flashcards";
+    return;
+  }
+  document.getElementById("cardText").innerText = cards[currentIndex].q;
+}
+
+function flipCard() {
+  const cards = flashcards[currentSection];
+  if (!cards || cards.length === 0) return;
+  const text = document.getElementById("cardText");
+  if (!flipped) {
+    text.innerText = cards[currentIndex].a;
+    flipped = true;
+  } else {
+    text.innerText = cards[currentIndex].q;
+    flipped = false;
+  }
+}
+
+function nextCard() {
+  const cards = flashcards[currentSection];
+  if (!cards || cards.length === 0) return;
+  currentIndex = (currentIndex + 1) % cards.length;
+  showCard();
+}
+
 function backToModes() {
+  document.getElementById("study").style.display = "none";
   document.getElementById("quiz").style.display = "none";
   document.getElementById("quizSetup").style.display = "none";
   document.getElementById("mode").style.display = "block";
