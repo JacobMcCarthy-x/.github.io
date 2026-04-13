@@ -51,6 +51,13 @@
   <p id="statQuizzes"></p>
   <p id="statAced"></p>
   <p id="statPassed"></p>
+  <br>
+  <button onclick="showResetConfirm()">Reset</button>
+  <div id="resetConfirm" style="display:none; margin-top:10px;">
+    <p>Are you sure?</p>
+    <button onclick="confirmReset()">Yes</button>
+    <button onclick="cancelReset()">No</button>
+  </div>
 </div>
 
 <div class="container">
@@ -326,6 +333,28 @@ function toggleStatsBar(){
   document.getElementById("statQuizzes").innerText = "Quizzes Completed: " + quizzesCompleted;
   document.getElementById("statAced").innerText = "Quizzes Aced: " + quizzesAced;
   document.getElementById("statPassed").innerText = "Quizzes Passed (75%): " + quizzesPassed;
+}
+
+function showResetConfirm(){
+  document.getElementById("resetConfirm").style.display = "block";
+}
+
+function cancelReset(){
+  document.getElementById("resetConfirm").style.display = "none";
+}
+
+function confirmReset(){
+  totalAnswered = 0;
+  totalCorrect = 0;
+  quizzesCompleted = 0;
+  quizzesAced = 0;
+  quizzesPassed = 0;
+
+  document.getElementById("resetConfirm").style.display = "none";
+
+  // refresh stats display
+  toggleStatsBar();
+  toggleStatsBar();
 }
 
 // UTIL
