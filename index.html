@@ -81,6 +81,7 @@
   </div>
 </div>
 
+<script src="A1QuizData.js"></script>
 <script>
 const quizData = {
   "Network+": [
@@ -146,7 +147,11 @@ function startQuiz(){
   document.getElementById("quizSetup").style.display="none";
   document.getElementById("quiz").style.display="block";
   currentIndex=0;score=0;
-  shuffledQuestions=shuffle([...quizData[currentSection]]);
+  if (currentSection === "A+ Core 1") {
+  shuffledQuestions = shuffle([...A1QuizData]);
+} else {
+  shuffledQuestions = [];
+}
   startTimer();loadQuestion();
 }
 
