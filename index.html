@@ -6,27 +6,11 @@
     body { font-family: Arial; background: #0f172a; color: white; text-align: center; margin: 0; }
     header { padding: 20px; background: #1e293b; font-size: 24px; }
     .container { padding: 20px; }
-
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 10px;
-    }
-
-    button {
-      padding: 10px 15px;
-      margin: 5px;
-      border-radius: 6px;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    .correct { border: 2px solid green; }
-    .incorrect { border: 2px solid red; }
+    .card { background: #1e293b; padding: 20px; margin: 20px auto; width: 320px; border-radius: 10px; }
+    button { padding: 10px 15px; margin: 5px; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; }
+    .row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .correct { border:2px solid green; }
+    .incorrect { border:2px solid red; }
   </style>
 </head>
 <body>
@@ -35,180 +19,186 @@
 
 <div class="container">
 
-  <h2 id="sectionTitle">Select a Section</h2>
+<h2 id="sectionTitle">Select a Section</h2>
 
-  <!-- HOME -->
-  <div id="home">
-    <button onclick="selectSection('A+ Core 1')">A+ Core 1</button>
+<div id="home">
+  <button onclick="selectSection('A+ Core 1')">A+ Core 1</button>
+</div>
+
+<div id="mode" style="display:none;">
+  <h3 id="modeTitle"></h3>
+
+  <div class="row">
+    <button onclick="startMode('flashcard')">Flashcards</button>
+    <button onclick="startMode('study')">Study</button>
+    <button onclick="openQuizSetup()">Quiz</button>
+    <button onclick="startMode('test')">Test</button>
   </div>
 
-  <!-- MODE -->
-  <div id="mode" style="display:none;">
-    <h3 id="modeTitle"></h3>
+  <br>
+  <button onclick="goHome()">Back</button>
+</div>
 
-    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-      <button onclick="openQuizSetup()">Quiz</button>
-    </div>
+<div id="quizSetup" style="display:none;">
+  <button onclick="backToModes()">Back</button>
+  <h3>Quiz Settings</h3>
 
-    <br>
-    <button onclick="goHome()">Back</button>
-  </div>
+  Questions (5–50)<br>
+  <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
+  <span id="qCount">10</span><br><br>
 
-  <!-- QUIZ SETUP -->
-  <div id="quizSetup" style="display:none;">
-    <button onclick="backToModes()">Back</button>
-    <h3>Quiz Settings</h3>
+  Timer (5–60 min)<br>
+  <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
+  <span id="timerVal">10</span>
+  <button onclick="toggleTimer()">Toggle</button>
+  <span id="timerStatus">ON</span><br><br>
 
-    Questions (5–50)<br>
-    <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
-    <span id="qCount">10</span><br><br>
+  Feedback?
+  <button onclick="toggleFeedback()">Toggle</button>
+  <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-left:5px;"></span>
+  <span id="feedbackStatus">ON</span>
 
-    <button onclick="startQuiz()">Begin Quiz</button>
-  </div>
+  <br><br>
+  <button onclick="startQuiz()">Begin Quiz</button>
+</div>
 
-  <!-- QUIZ -->
-  <div id="quiz" style="display:none;">
-    <button onclick="backToModes()">Back</button>
-    <div class="card">
-      <p id="questionText"></p>
-    </div>
-    <div id="answers"></div>
-    <p id="score"></p>
-  </div>
+<div id="quiz" style="display:none;">
+  <button onclick="backToModes()">Back</button>
+  <p id="timerDisplay"></p>
+  <div class="card"><p id="questionText"></p></div>
+  <div id="answers"></div>
+</div>
 
-  <!-- REVIEW -->
-  <div id="review" style="display:none;">
-    <h3>Review Incorrect Answers</h3>
-    <div id="reviewList"></div>
-    <button onclick="goHome()">Back to Home</button>
-  </div>
+<div id="review" style="display:none;">
+  <h3>Review Incorrect Answers</h3>
+  <div id="reviewList"></div>
+  <button onclick="goHome()">Back to Home</button>
+</div>
 
 </div>
 
 <script src="A1QuizData.js"></script>
-
 <script>
-let currentSection = "";
-let shuffledQuestions = [];
-let currentIndex = 0;
-let score = 0;
-let totalQuestions = 10;
-let incorrectAnswers = [];
+let currentSection="";
+let shuffledQuestions=[];
+let currentIndex=0;
+let score=0;
+let totalQuestions=10;
+let incorrectAnswers=[];
+let timer=600;
+let timerInterval;
+let timerEnabled=true;
+let feedbackOn=true;
 
 function selectSection(section){
-  currentSection = section;
-  document.getElementById("home").style.display = "none";
-  document.getElementById("mode").style.display = "block";
-  document.getElementById("modeTitle").innerText = "Section: " + section;
+  currentSection=section;
+  home.style.display="none";
+  mode.style.display="block";
+  modeTitle.innerText="Section: "+section;
+}
+
+function startMode(mode){
+  if(mode==='flashcard'||mode==='study'||mode==='test'){
+    alert("Not built yet");
+  }
 }
 
 function openQuizSetup(){
-  document.getElementById("mode").style.display = "none";
-  document.getElementById("quizSetup").style.display = "block";
+  mode.style.display="none";
+  quizSetup.style.display="block";
 }
 
-function updateQCount(val){
-  totalQuestions = parseInt(val);
-  document.getElementById("qCount").innerText = val;
+function updateQCount(v){totalQuestions=parseInt(v);qCount.innerText=v;}
+function updateTimer(v){timer=parseInt(v)*60;timerVal.innerText=v;}
+
+function toggleTimer(){
+  timerEnabled=!timerEnabled;
+  timerStatus.innerText=timerEnabled?"ON":"OFF";
+}
+
+function toggleFeedback(){
+  feedbackOn=!feedbackOn;
+  feedbackStatus.innerText=feedbackOn?"ON":"OFF";
+  feedbackIndicator.style.background=feedbackOn?"green":"red";
 }
 
 function startQuiz(){
-  document.getElementById("quizSetup").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
+  quizSetup.style.display="none";
+  quiz.style.display="block";
 
-  currentIndex = 0;
-  score = 0;
-  incorrectAnswers = [];
+  currentIndex=0;
+  score=0;
+  incorrectAnswers=[];
 
-  shuffledQuestions = shuffle([...A1QuizData]);
+  shuffledQuestions=shuffle([...A1QuizData]);
 
+  startTimer();
   loadQuestion();
 }
 
+function startTimer(){
+  clearInterval(timerInterval);
+  if(!timerEnabled) return;
+  timerInterval=setInterval(()=>{
+    if(timer<=0){clearInterval(timerInterval);endQuiz();return;}
+    timer--;
+    timerDisplay.innerText="Time: "+Math.floor(timer/60)+":"+(timer%60).toString().padStart(2,'0');
+  },1000);
+}
+
 function loadQuestion(){
-  if (currentIndex >= totalQuestions || currentIndex >= shuffledQuestions.length){
-    endQuiz();
-    return;
-  }
+  if(currentIndex>=totalQuestions||currentIndex>=shuffledQuestions.length){endQuiz();return;}
 
-  const q = shuffledQuestions[currentIndex];
-  document.getElementById("questionText").innerText = q.q;
+  const q=shuffledQuestions[currentIndex];
+  questionText.innerText=q.q;
 
-  const answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  shuffle([...q.options]).forEach(opt => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => checkAnswer(opt, q);
-    answers.appendChild(btn);
+  answers.innerHTML="";
+  shuffle([...q.options]).forEach(opt=>{
+    const b=document.createElement("button");
+    b.innerText=opt;
+    b.onclick=()=>checkAnswer(opt,q);
+    answers.appendChild(b);
   });
 }
 
-function checkAnswer(answer, q){
-  if (answer === q.correct){
-    score++;
-  } else {
-    incorrectAnswers.push({question: q, selected: answer});
-  }
+function checkAnswer(ans,q){
+  if(ans===q.correct){score++; if(feedbackOn) alert("Correct");}
+  else{ if(feedbackOn) alert("Incorrect"); incorrectAnswers.push({question:q,selected:ans}); }
 
   currentIndex++;
   loadQuestion();
 }
 
 function endQuiz(){
-  document.getElementById("quiz").style.display = "none";
+  clearInterval(timerInterval);
+  quiz.style.display="none";
 
-  const total = Math.min(totalQuestions, shuffledQuestions.length);
-  const percent = ((score / total) * 100).toFixed(1);
+  const total=Math.min(totalQuestions,shuffledQuestions.length);
+  const percent=((score/total)*100).toFixed(1);
 
-  document.getElementById("review").style.display = "block";
+  review.style.display="block";
+  reviewList.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
 
-  const reviewDiv = document.getElementById("reviewList");
-  reviewDiv.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+  incorrectAnswers.forEach(item=>{
+    const div=document.createElement("div");
+    div.className="card";
 
-  incorrectAnswers.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    const q = item.question;
-
-    let html = `<p>${q.q}</p>`;
-
-    q.options.forEach(opt => {
-      if (opt === q.correct){
-        html += `<div class='correct'>${opt}</div>`;
-      } else if (opt === item.selected){
-        html += `<div class='incorrect'>${opt}</div>`;
-      } else {
-        html += `<div>${opt}</div>`;
-      }
+    let html=`<p>${item.question.q}</p>`;
+    item.question.options.forEach(opt=>{
+      if(opt===item.question.correct) html+=`<div class='correct'>${opt}</div>`;
+      else if(opt===item.selected) html+=`<div class='incorrect'>${opt}</div>`;
+      else html+=`<div>${opt}</div>`;
     });
 
-    div.innerHTML = html;
-    reviewDiv.appendChild(div);
+    div.innerHTML=html;
+    reviewList.appendChild(div);
   });
 }
 
-function shuffle(a){
-  for (let i = a.length - 1; i > 0; i--){
-    let j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-function backToModes(){
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("quizSetup").style.display = "none";
-  document.getElementById("mode").style.display = "block";
-}
-
-function goHome(){
-  document.getElementById("review").style.display = "none";
-  document.getElementById("mode").style.display = "none";
-  document.getElementById("home").style.display = "block";
-}
+function backToModes(){quiz.style.display="none";quizSetup.style.display="none";mode.style.display="block";}
+function goHome(){review.style.display="none";mode.style.display="none";home.style.display="block";}
 </script>
 
 </body>
