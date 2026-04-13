@@ -101,7 +101,12 @@
 
 </div>
 
-<script src="A1QuizData.js"></script>
+<script src="A1QuizData.js">// ensure clean state on load
+window.onload = () => {
+  goHome();
+};
+
+</script>
 <script>
 
 // ELEMENT REFERENCES
@@ -166,12 +171,16 @@ function backToModes(){
 }
 
 function goHome(){
-  review.style.display="none";
-  quiz.style.display="none";
-  quizSetup.style.display="none";
-  mode.style.display="none";
-  home.style.display="block";
-  sectionTitle.style.display="block";
+  // hide all sections
+  review.style.display = "none";
+  quiz.style.display = "none";
+  quizSetup.style.display = "none";
+  mode.style.display = "none";
+  statsBar.style.display = "none";
+
+  // show only home
+  home.style.display = "block";
+  sectionTitle.style.display = "block";
 }
 
 // SETTINGS
