@@ -73,12 +73,8 @@
 
 <!-- STEP 3: SECTION -->
 <div id="sectionSelect" style="display:none;">
-  <h3>Select Sections (choose multiple)</h3>
-
-  <div id="sectionButtons"></div>
-
-  <br>
-  <button onclick="confirmSections()">Continue</button>
+  <h3>Select Section</h3>
+  <div id="sectionButtons" class="row"></div>
 </div>
 
 <!-- STEP 3: SETTINGS -->
@@ -141,6 +137,36 @@ function selectCert(cert){
   document.getElementById("modeSelect").style.display = "block";
 }
 
+function selectMode(mode){
+  selectedMode = mode;
+
+  document.getElementById("modeSelect").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "block";
+
+  loadSections();
+}
+
+function loadSections(){
+  const container = document.getElementById("sectionButtons");
+  container.innerHTML = "";
+
+  let data = A1QuizData;
+
+  Object.keys(data).forEach(section => {
+    const label = document.createElement("label");
+    label.style.display = "block";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = section;
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(" " + section));
+
+    container.appendChild(label);
+  });
+}
+
 function confirmSections(){
   selectedSections = [];
 
@@ -151,28 +177,6 @@ function confirmSections(){
     alert("Select at least one section");
     return;
   }
-
-  document.getElementById("sectionSelect").style.display = "none";
-  document.getElementById("quizSetup").style.display = "block";
-}
-
-  const allBtn = document.createElement("button");
-  allBtn.innerText = "All Sections";
-  allBtn.onclick = () => selectSection("ALL");
-  container.appendChild(allBtn);
-}
-
-function selectMode(mode){
-  selectedMode = mode;
-
-  document.getElementById("modeSelect").style.display = "none";
-  document.getElementById("sectionSelect").style.display = "block";
-
-  loadSections();
-}
-
-function selectSection(section){
-  selectedSection = section;
 
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quizSetup").style.display = "block";
@@ -201,17 +205,13 @@ function startQuiz(){
   score = 0;
   incorrectAnswers = [];
 
-  let data = A1QuizData;
+  let all = [];
 
-  if(selectedSection === "ALL"){
-    let all = [];
+  selectedSections.forEach(section => {
+    all = all.concat(A1QuizData[section]);
+  });
 
-selectedSections.forEach(section => {
-  all = all.concat(A1QuizData[section]);
-});
-
-shuffledQuestions = all.sort(() => Math.random() - 0.5);
-  }
+  shuffledQuestions = all.sort(() => Math.random() - 0.5);
 
   startTimer();
   loadQuestion();
