@@ -73,8 +73,13 @@
 
 <!-- STEP 3: SECTION -->
 <div id="sectionSelect" style="display:none;">
-  <h3>Select Section</h3>
-  <div id="sectionButtons" class="row"></div>
+  <h3>Select Sections</h3>
+
+  <div id="sectionButtons"></div>
+
+  <br>
+  <button onclick="confirmSections()">Proceed</button>
+</div>
 </div>
 
 <!-- STEP 3: SETTINGS -->
@@ -152,9 +157,31 @@ function loadSections(){
 
   let data = A1QuizData;
 
+  // ALL checkbox
+  const allLabel = document.createElement("label");
+  allLabel.style.display = "block";
+  allLabel.style.margin = "6px";
+
+  const allCheckbox = document.createElement("input");
+  allCheckbox.type = "checkbox";
+  allCheckbox.value = "ALL";
+
+  allCheckbox.addEventListener("change", () => {
+    const checkboxes = container.querySelectorAll("input[type='checkbox']");
+    checkboxes.forEach(cb => {
+      if (cb !== allCheckbox) cb.checked = allCheckbox.checked;
+    });
+  });
+
+  allLabel.appendChild(allCheckbox);
+  allLabel.appendChild(document.createTextNode(" All Sections"));
+  container.appendChild(allLabel);
+
+  // Section checkboxes (vertical)
   Object.keys(data).forEach(section => {
     const label = document.createElement("label");
     label.style.display = "block";
+    label.style.margin = "6px";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -166,17 +193,31 @@ function loadSections(){
     container.appendChild(label);
   });
 }
+);
+}
 
 function confirmSections(){
   selectedSections = [];
 
-  document.querySelectorAll("#sectionButtons input:checked")
-    .forEach(cb => selectedSections.push(cb.value));
+  const allChecked = document.querySelector("#sectionButtons input[value='ALL']")?.checked;
+
+  if(allChecked){
+    selectedSections = Object.keys(A1QuizData);
+  } else {
+    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
+      if (cb.value !== 'ALL') selectedSections.push(cb.value);
+    });
+  }
 
   if(selectedSections.length === 0){
     alert("Select at least one section");
     return;
   }
+
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
+}
+
 
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quizSetup").style.display = "block";
