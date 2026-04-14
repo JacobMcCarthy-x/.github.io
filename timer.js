@@ -2,12 +2,12 @@ let timer = 600;
 let timerInterval;
 let timerEnabled = true;
 
-function startTimer() {
+function startTimer(){
   clearInterval(timerInterval);
-  if (!timerEnabled) return;
+  if(!timerEnabled) return;
 
-  timerInterval = setInterval(() => {
-    if (timer <= 0) {
+  timerInterval = setInterval(()=>{
+    if(timer <= 0){
       clearInterval(timerInterval);
       endQuiz();
       return;
@@ -15,19 +15,17 @@ function startTimer() {
 
     timer--;
 
-    document.getElementById("timerDisplay").innerText =
-      "Time: " +
-      Math.floor(timer / 60) +
-      ":" +
-      (timer % 60).toString().padStart(2, "0");
-  }, 1000);
+    const display = document.getElementById("timerDisplay");
+    if(display){
+      display.innerText =
+        "Time: " +
+        Math.floor(timer/60) + ":" +
+        (timer%60).toString().padStart(2,'0');
+    }
+  },1000);
 }
 
-function resetTimer(minutes) {
-  timer = minutes * 60;
-}
-
-function toggleTimer() {
+function toggleTimer(){
   timerEnabled = !timerEnabled;
 
   document.getElementById("timerStatus").innerText =
@@ -37,7 +35,11 @@ function toggleTimer() {
     timerEnabled ? "green" : "red";
 }
 
-function updateTimer(value) {
-  resetTimer(parseInt(value));
-  document.getElementById("timerVal").innerText = value;
+function updateTimer(v){
+  timer = parseInt(v) * 60;
+  document.getElementById("timerVal").innerText = v;
+}
+
+function resetTimer(minutes){
+  timer = minutes * 60;
 }
