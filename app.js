@@ -23,10 +23,12 @@ function goHome(){
   quiz.style.display="none";
   quizSetup.style.display="none";
   home.style.display="block";
+  document.getElementById("sectionTitle").style.display="block";
 }
 
 function openQuizSetup(){
   home.style.display="none";
+  document.getElementById("sectionTitle").style.display="none";
   quizSetup.style.display="block";
 }
 
@@ -59,7 +61,9 @@ function loadQuestion(){
 
   const q = shuffledQuestions[currentIndex];
 
-  progressDisplay.innerText = `Question ${currentIndex+1} of ${totalQuestions}`;
+  progressDisplay.innerText =
+    `Question ${currentIndex+1} of ${totalQuestions}`;
+
   questionText.innerText = q.q;
 
   answers.innerHTML = "";
@@ -75,7 +79,8 @@ function loadQuestion(){
 function checkAnswer(btn, ans, q){
   totalAnswered++;
 
-  document.querySelectorAll("#answers button").forEach(b => b.disabled = true);
+  document.querySelectorAll("#answers button")
+    .forEach(b => b.disabled = true);
 
   if(ans === q.correct){
     btn.classList.add("correct");
@@ -85,7 +90,8 @@ function checkAnswer(btn, ans, q){
     btn.classList.add("incorrect");
 
     document.querySelectorAll("#answers button").forEach(b => {
-      if(b.innerText === q.correct) b.classList.add("correct");
+      if(b.innerText === q.correct)
+        b.classList.add("correct");
     });
 
     incorrectAnswers.push({question:q, selected:ans});
@@ -137,9 +143,14 @@ function toggleStatsBar(){
     ? ((totalCorrect / totalAnswered) * 100).toFixed(1)
     : 0;
 
-  document.getElementById("statAnswers").innerText = "Answers Completed: " + totalAnswered;
-  document.getElementById("statCorrect").innerText = "Answers Correct: " + totalCorrect;
-  document.getElementById("statPercent").innerText = "Accuracy: " + accuracy + "%";
+  document.getElementById("statAnswers").innerText =
+    "Answers Completed: " + totalAnswered;
+
+  document.getElementById("statCorrect").innerText =
+    "Answers Correct: " + totalCorrect;
+
+  document.getElementById("statPercent").innerText =
+    "Accuracy: " + accuracy + "%";
 }
 
 function startMode(){
