@@ -4,7 +4,7 @@
   <title>CompTIA Certification Lab</title>
   <style>
     body { font-family: Arial; background: #0f172a; color: white; text-align: center; margin: 0; }
-    header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:#1e293b; }
+    header { padding: 20px; background: #1e293b; font-size: 24px; }
     .container { padding: 20px; }
     .card { background: #1e293b; padding: 20px; margin: 20px auto; width: 320px; border-radius: 10px; }
     button { padding: 10px 15px; margin: 5px; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; }
@@ -20,16 +20,19 @@
       background: #111827;
       border-left: 2px solid #374151;
       padding: 15px;
+      text-align: left;
+      box-shadow: -5px 0 10px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
 
-<header>
-  <button onclick="goHome()" style="background:none;border:none;color:white;font-size:20px;">
+<header style="display:flex; justify-content:space-between; align-items:center; padding:20px; background:#1e293b;">
+  <button onclick="goHome()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">
     CompTIA Certification Lab
   </button>
-  <div>
+
+  <div style="display:flex; gap:10px; align-items:center;">
     <button onclick="goHome()">Home</button>
     <button onclick="toggleStatsBar()">Stats</button>
   </div>
@@ -40,6 +43,10 @@
   <p id="statAnswers"></p>
   <p id="statCorrect"></p>
   <p id="statPercent"></p>
+  <hr>
+  <p id="statQuizzes"></p>
+  <p id="statAced"></p>
+  <p id="statPassed"></p>
 </div>
 
 <div class="container">
@@ -55,20 +62,37 @@
   </div>
 </div>
 
+<div id="mode" style="display:none;">
+  <h3 id="modeTitle"></h3>
+  <div class="row">
+    <button onclick="openQuizSetup()">Quiz</button>
+    <button onclick="startMode()">Test</button>
+    <button onclick="startMode()">Flashcards</button>
+    <button onclick="startMode()">Study</button>
+  </div>
+</div>
+</div>
+
 <div id="quizSetup" style="display:none;">
   <h3>Quiz Settings</h3>
 
-  Questions<br>
+  Questions (5–50)<br>
   <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
   <span id="qCount">10</span><br><br>
 
-  Timer<br>
+  Timer (5–60 min)<br>
   <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
   <span id="timerVal">10</span>
   <button onclick="toggleTimer()">Toggle</button>
   <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
   <span id="timerStatus">ON</span><br><br>
 
+  Feedback?
+  <button onclick="toggleFeedback()">Toggle</button>
+  <span id="feedbackIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
+  <span id="feedbackStatus">ON</span>
+
+  <br><br>
   <button onclick="startQuiz()">Begin Quiz</button>
 </div>
 
@@ -90,6 +114,110 @@
 <script src="A1QuizData.js"></script>
 <script src="timer.js"></script>
 <script src="app.js"></script>
+<script>
+
+const home = document.getElementById("home");
+const mode = document.getElementById("mode");
+const quizSetup = document.getElementById("quizSetup");
+const quiz = document.getElementById("quiz");
+const review = document.getElementById("review");
+
+const modeTitle = document.getElementById("modeTitle");
+const sectionTitle = document.getElementById("sectionTitle");
+const questionText = document.getElementById("questionText");
+const answers = document.getElementById("answers");
+const reviewList = document.getElementById("reviewList");
+const progressDisplay = document.getElementById("progressDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
+const timerVal = document.getElementById("timerVal");
+const timerStatus = document.getElementById("timerStatus");
+const timerIndicator = document.getElementById("timerIndicator");
+
+const qCount = document.getElementById("qCount");
+
+let shuffledQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let totalQuestions = 10;
+let incorrectAnswers = [];
+
+
+
+function loadQuestion(){
+  if(currentIndex >= totalQuestions || currentIndex >= shuffledQuestions.length){
+    endQuiz();
+    return;
+  }
+
+  const q = shuffledQuestions[currentIndex];
+  progressDisplay.innerText = `Question ${currentIndex+1} of ${totalQuestions}`;
+  questionText.innerText = q.q;
+
+  answers.innerHTML = "";
+
+  q.options.sort(() => Math.random() - 0.5).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(btn, opt, q);
+    answers.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, ans, q){
+  document.querySelectorAll("#answers button").forEach(b => b.disabled = true);
+
+  if(ans === q.correct){
+    btn.classList.add("correct");
+    score++;
+  } else {
+    btn.classList.add("incorrect");
+    document.querySelectorAll("#answers button").forEach(b => {
+      if(b.innerText === q.correct) b.classList.add("correct");
+    });
+
+    incorrectAnswers.push({question:q, selected:ans, index: currentIndex});
+  }
+
+  setTimeout(() => {
+    currentIndex++;
+    loadQuestion();
+  }, 1000);
+}
+
+function endQuiz(){
+  clearInterval(timerInterval);
+  quiz.style.display="none";
+  review.style.display="block";
+
+  const total = Math.min(totalQuestions, shuffledQuestions.length);
+  const percent = ((score / total) * 100).toFixed(1);
+
+  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+
+  incorrectAnswers.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    let html = `<p><strong>Question ${item.index + 1}:</strong> ${item.question.q}</p>`;
+
+    item.question.options.forEach(opt => {
+      if(opt === item.question.correct){
+        html += `<div class='correct'>${opt}</div>`;
+      } else if(opt === item.selected){
+        html += `<div class='incorrect'>${opt}</div>`;
+      } else {
+        html += `<div>${opt}</div>`;
+      }
+    });
+
+    div.innerHTML = html;
+    reviewList.appendChild(div);
+  });
+}
+
+window.onload = goHome;
+
+</script>
 
 </body>
 </html>
