@@ -292,7 +292,30 @@ function endQuiz(){
 
   review.style.display="block";
 
-  reviewList.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
+  // Header score
+  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+
+  // Show ONLY incorrect answers with highlighting
+  incorrectAnswers.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    let html = `<p>${item.question.q}</p>`;
+
+    item.question.options.forEach(opt => {
+      if (opt === item.question.correct) {
+        html += `<div class='correct'>${opt}</div>`; // correct answer in green
+      } else if (opt === item.selected) {
+        html += `<div class='incorrect'>${opt}</div>`; // user's wrong choice in red
+      } else {
+        html += `<div>${opt}</div>`; // neutral options
+      }
+    });
+
+    div.innerHTML = html;
+    reviewList.appendChild(div);
+  });
+}/${total} (${percent}%)</p>`;
 }
 
 function toggleStatsBar(){
