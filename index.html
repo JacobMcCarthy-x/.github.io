@@ -70,10 +70,10 @@
 <div id="mode" style="display:none;">
   <h3 id="modeTitle"></h3>
   <div class="row">
-    <button onclick="startMode('flashcard')">Flashcards</button>
-    <button onclick="startMode('study')">Study</button>
+    <button onclick="startMode()">Flashcards</button>
+    <button onclick="startMode()">Study</button>
     <button onclick="openQuizSetup()">Quiz</button>
-    <button onclick="startMode('test')">Test</button>
+    <button onclick="startMode()">Test</button>
   </div>
 </div>
 
@@ -107,7 +107,7 @@
 </div>
 
 <div id="review" style="display:none;">
-  <h3>Review Incorrect Answers</h3>
+  <h3>Results</h3>
   <div id="reviewList"></div>
   <button onclick="goHome()">Back to Home</button>
 </div>
@@ -210,7 +210,7 @@ function startQuiz(){
   score=0;
   incorrectAnswers=[];
 
-  // reset timer each quiz
+  // reset timer each run
   timer = parseInt(timerVal.innerText) * 60;
 
   shuffledQuestions=shuffle([...A1QuizData]);
@@ -231,24 +231,10 @@ function startTimer(){
 }
 
 function loadQuestion(){
-  // prevent instant end on first click
-  if((currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length) && currentIndex > 0){ 
+  if(currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length){ 
     endQuiz(); 
     return; 
   }
-
-  const q=shuffledQuestions[currentIndex];
-  questionText.innerText=q.q;
-
-  answers.innerHTML="";
-
-  shuffle([...q.options]).forEach(opt=>{
-    const b=document.createElement("button");
-    b.innerText=opt;
-    b.onclick=()=>checkAnswer(opt,q);
-    answers.appendChild(b);
-  });
-}
 
   const q=shuffledQuestions[currentIndex];
   questionText.innerText=q.q;
