@@ -167,8 +167,12 @@ function startMode(){
 }
 
 function openQuizSetup(){
-  sectionTitle.style.display = "none";
+  // hide everything else
   mode.style.display="none";
+  home.style.display="none";
+  sectionTitle.style.display = "none";
+
+  // show quiz setup
   quizSetup.style.display="block";
 }
 
