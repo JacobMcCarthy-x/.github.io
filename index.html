@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>CompTIA Certification Lab</title>
+
   <style>
     body { font-family: Arial; background: #0f172a; color: white; text-align: center; margin: 0; }
     header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:#1e293b; }
@@ -23,10 +24,14 @@
     }
   </style>
 </head>
+
 <body>
 
 <header>
-  <button onclick="goHome()" style="background:none;border:none;color:white;font-size:20px;">CompTIA Certification Lab</button>
+  <button onclick="goHome()" style="background:none;border:none;color:white;font-size:20px;">
+    CompTIA Certification Lab
+  </button>
+
   <div>
     <button onclick="goHome()">Home</button>
     <button onclick="toggleStatsBar()">Stats</button>
@@ -44,18 +49,20 @@
 
 <h2 id="sectionTitle">Dashboard</h2>
 
+<!-- STEP 1: SECTION SELECT -->
 <div id="home">
   <h3>Select Section</h3>
   <div class="row">
-    <button onclick="selectQuizSection('Hardware and Network Troubleshooting (28%)')">Troubleshooting</button>
-    <button onclick="selectQuizSection('Virtualization and Cloud Computing (11%)')">Cloud</button>
-    <button onclick="selectQuizSection('Hardware (25%)')">Hardware</button>
-    <button onclick="selectQuizSection('Networking (23%)')">Networking</button>
-    <button onclick="selectQuizSection('Mobile Devices (13%)')">Mobile</button>
-    <button onclick="selectQuizSection('ALL')">All Sections</button>
+    <button onclick="selectSection('Hardware and Network Troubleshooting (28%)')">Troubleshooting</button>
+    <button onclick="selectSection('Virtualization and Cloud Computing (11%)')">Cloud</button>
+    <button onclick="selectSection('Hardware (25%)')">Hardware</button>
+    <button onclick="selectSection('Networking (23%)')">Networking</button>
+    <button onclick="selectSection('Mobile Devices (13%)')">Mobile</button>
+    <button onclick="selectSection('ALL')">All Sections</button>
   </div>
 </div>
 
+<!-- STEP 2: QUIZ SETTINGS -->
 <div id="quizSetup" style="display:none;">
   <h3>Quiz Settings</h3>
 
@@ -73,13 +80,19 @@
   <button onclick="startQuiz()">Begin Quiz</button>
 </div>
 
+<!-- STEP 3: QUIZ -->
 <div id="quiz" style="display:none;">
   <p id="progressDisplay"></p>
   <p id="timerDisplay"></p>
-  <div class="card"><p id="questionText"></p></div>
+
+  <div class="card">
+    <p id="questionText"></p>
+  </div>
+
   <div id="answers"></div>
 </div>
 
+<!-- STEP 4: RESULTS -->
 <div id="review" style="display:none;">
   <h3>Results</h3>
   <div id="reviewList"></div>
@@ -90,50 +103,45 @@
 
 <script src="A1QuizData.js"></script>
 <script src="timer.js"></script>
-<script src="app.js"></script>
+
 <script>
-
-const home = document.getElementById("home");
-const quizSetup = document.getElementById("quizSetup");
-const quiz = document.getElementById("quiz");
-const review = document.getElementById("review");
-const sectionTitle = document.getElementById("sectionTitle");
-
-const questionText = document.getElementById("questionText");
-const answers = document.getElementById("answers");
-const reviewList = document.getElementById("reviewList");
-const progressDisplay = document.getElementById("progressDisplay");
-
+let selectedSection = "";
 let shuffledQuestions = [];
 let currentIndex = 0;
 let score = 0;
 let totalQuestions = 10;
 let incorrectAnswers = [];
-let selectedSection = "";
 
-function selectQuizSection(section){
+/* ---------------- NAVIGATION ---------------- */
+
+function selectSection(section){
   selectedSection = section;
-  home.style.display="none";
-  sectionTitle.style.display="none";
-  quizSetup.style.display="block";
+
+  document.getElementById("home").style.display = "none";
+  document.getElementById("sectionTitle").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
 }
 
 function goHome(){
-  review.style.display="none";
-  quiz.style.display="none";
-  quizSetup.style.display="none";
-  home.style.display="block";
-  sectionTitle.style.display="block";
+  document.getElementById("home").style.display = "block";
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("review").style.display = "none";
+  document.getElementById("sectionTitle").style.display = "block";
 }
+
+/* ---------------- SETTINGS ---------------- */
 
 function updateQCount(v){
   totalQuestions = parseInt(v);
   document.getElementById("qCount").innerText = v;
 }
 
+/* ---------------- QUIZ ---------------- */
+
 function startQuiz(){
-  quizSetup.style.display="none";
-  quiz.style.display="block";
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
 
   currentIndex = 0;
   score = 0;
@@ -144,7 +152,8 @@ function startQuiz(){
     Object.values(A1QuizData).forEach(arr => all = all.concat(arr));
     shuffledQuestions = all.sort(() => Math.random() - 0.5);
   } else {
-    shuffledQuestions = [...A1QuizData[selectedSection]].sort(() => Math.random() - 0.5);
+    shuffledQuestions = [...A1QuizData[selectedSection]]
+      .sort(() => Math.random() - 0.5);
   }
 
   startTimer();
@@ -158,9 +167,13 @@ function loadQuestion(){
   }
 
   const q = shuffledQuestions[currentIndex];
-  progressDisplay.innerText = `Question ${currentIndex+1} of ${totalQuestions}`;
-  questionText.innerText = q.q;
 
+  document.getElementById("progressDisplay").innerText =
+    `Question ${currentIndex+1} of ${totalQuestions}`;
+
+  document.getElementById("questionText").innerText = q.q;
+
+  const answers = document.getElementById("answers");
   answers.innerHTML = "";
 
   q.options.sort(() => Math.random() - 0.5).forEach(opt => {
@@ -179,6 +192,7 @@ function checkAnswer(btn, ans, q){
     score++;
   } else {
     btn.classList.add("incorrect");
+
     document.querySelectorAll("#answers button").forEach(b => {
       if(b.innerText === q.correct) b.classList.add("correct");
     });
@@ -192,15 +206,19 @@ function checkAnswer(btn, ans, q){
   }, 1000);
 }
 
+/* ---------------- RESULTS ---------------- */
+
 function endQuiz(){
   clearInterval(timerInterval);
-  quiz.style.display="none";
-  review.style.display="block";
+
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("review").style.display = "block";
 
   const total = Math.min(totalQuestions, shuffledQuestions.length);
   const percent = ((score / total) * 100).toFixed(1);
 
-  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+  const review = document.getElementById("reviewList");
+  review.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
 
   incorrectAnswers.forEach(item => {
     const div = document.createElement("div");
@@ -219,12 +237,18 @@ function endQuiz(){
     });
 
     div.innerHTML = html;
-    reviewList.appendChild(div);
+    review.appendChild(div);
   });
 }
 
-window.onload = goHome;
+/* ---------------- STATS ---------------- */
 
+function toggleStatsBar(){
+  const bar = document.getElementById("statsBar");
+  bar.style.display = bar.style.display === "none" ? "block" : "none";
+}
+
+window.onload = goHome;
 </script>
 
 </body>
