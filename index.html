@@ -112,6 +112,7 @@
 </div>
 
 <script src="A1QuizData.js"></script>
+<script src="A1QuizData.js"></script>
 <script>
 
 const home = document.getElementById("home");
@@ -119,60 +120,31 @@ const mode = document.getElementById("mode");
 const quizSetup = document.getElementById("quizSetup");
 const quiz = document.getElementById("quiz");
 const review = document.getElementById("review");
-const statsBar = document.getElementById("statsBar");
 
 const modeTitle = document.getElementById("modeTitle");
 const sectionTitle = document.getElementById("sectionTitle");
 const questionText = document.getElementById("questionText");
 const answers = document.getElementById("answers");
 const reviewList = document.getElementById("reviewList");
-const timerDisplay = document.getElementById("timerDisplay");
 const progressDisplay = document.getElementById("progressDisplay");
 
 const qCount = document.getElementById("qCount");
-const timerVal = document.getElementById("timerVal");
-const timerStatus = document.getElementById("timerStatus");
-const timerIndicator = document.getElementById("timerIndicator");
-const feedbackStatus = document.getElementById("feedbackStatus");
-const feedbackIndicator = document.getElementById("feedbackIndicator");
 
-let currentSection="";
-let shuffledQuestions=[];
-let currentIndex=0;
-let score=0;
-let totalQuestions=10;
-let incorrectAnswers=[];
-
-let timer=600;
-let timerInterval;
-let timerEnabled=true;
-let feedbackOn=true;
-
-let totalAnswered=0;
-let totalCorrect=0;
-let quizzesCompleted=0;
-let quizzesAced=0;
-let quizzesPassed=0;
+let shuffledQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let totalQuestions = 10;
+let incorrectAnswers = [];
 
 function selectSection(section){
-  currentSection=section;
   home.style.display="none";
   mode.style.display="block";
-  modeTitle.innerText="Section: "+section;
-  sectionTitle.style.display="none";
-}
-
-function startMode(){
-  alert("Not built yet");
+  modeTitle.innerText = "Section: " + section;
+  sectionTitle.style.display = "none";
 }
 
 function openQuizSetup(){
-  // hide everything else
   mode.style.display="none";
-  home.style.display="none";
-  sectionTitle.style.display = "none";
-
-  // show quiz setup
   quizSetup.style.display="block";
 }
 
@@ -185,91 +157,57 @@ function goHome(){
   sectionTitle.style.display="block";
 }
 
-function updateQCount(v){ totalQuestions=parseInt(v); qCount.innerText=v; }
-function updateTimer(v){ timer=parseInt(v)*60; timerVal.innerText=v; }
-
-function toggleTimer(){
-  timerEnabled=!timerEnabled;
-  timerStatus.innerText=timerEnabled?"ON":"OFF";
-  timerIndicator.style.background=timerEnabled?"green":"red";
-}
-
-function toggleFeedback(){
-  feedbackOn=!feedbackOn;
-  feedbackStatus.innerText=feedbackOn?"ON":"OFF";
-  feedbackIndicator.style.background=feedbackOn?"green":"red";
+function updateQCount(v){
+  totalQuestions = parseInt(v);
+  qCount.innerText = v;
 }
 
 function startQuiz(){
   quizSetup.style.display="none";
   quiz.style.display="block";
 
-  currentIndex=0;
-  score=0;
-  incorrectAnswers=[];
+  currentIndex = 0;
+  score = 0;
+  incorrectAnswers = [];
 
-  timer = parseInt(timerVal.innerText) * 60;
+  shuffledQuestions = [...A1QuizData].sort(() => Math.random() - 0.5);
 
-  shuffledQuestions=shuffle([...A1QuizData]);
-
-  startTimer();
   loadQuestion();
 }
 
-function startTimer(){
-  clearInterval(timerInterval);
-  if(!timerEnabled) return;
-
-  timerInterval=setInterval(()=>{
-    if(timer<=0){ clearInterval(timerInterval); endQuiz(); return; }
-    timer--;
-    timerDisplay.innerText="Time: "+Math.floor(timer/60)+":"+(timer%60).toString().padStart(2,'0');
-  },1000);
-}
-
 function loadQuestion(){
-  if(currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length){ 
-    endQuiz(); 
-    return; 
+  if(currentIndex >= totalQuestions || currentIndex >= shuffledQuestions.length){
+    endQuiz();
+    return;
   }
 
-  progressDisplay.innerText = "Question " + (currentIndex + 1) + " of " + Math.min(totalQuestions, shuffledQuestions.length);
+  const q = shuffledQuestions[currentIndex];
+  progressDisplay.innerText = `Question ${currentIndex+1} of ${totalQuestions}`;
+  questionText.innerText = q.q;
 
-  const q=shuffledQuestions[currentIndex];
-  questionText.innerText=q.q;
+  answers.innerHTML = "";
 
-  answers.innerHTML="";
-
-  shuffle([...q.options]).forEach(opt=>{
-    const b=document.createElement("button");
-    b.innerText=opt;
-    b.onclick=()=>checkAnswer(opt,q);
-    answers.appendChild(b);
+  q.options.sort(() => Math.random() - 0.5).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(btn, opt, q);
+    answers.appendChild(btn);
   });
 }
 
-function checkAnswer(ans,q){
-  totalAnswered++;
-
-  const buttons = document.querySelectorAll("#answers button");
-
-  buttons.forEach(btn => {
-    btn.disabled = true;
-
-    if(btn.innerText === q.correct){
-      btn.classList.add("correct");
-    }
-
-    if(btn.innerText === ans && ans !== q.correct){
-      btn.classList.add("incorrect");
-    }
-  });
+function checkAnswer(btn, ans, q){
+  document.querySelectorAll("#answers button").forEach(b => b.disabled = true);
 
   if(ans === q.correct){
+    btn.classList.add("correct");
     score++;
-    totalCorrect++;
   } else {
-    incorrectAnswers.push({question:q,selected:ans});
+    btn.classList.add("incorrect");
+    document.querySelectorAll("#answers button").forEach(b => {
+      if(b.innerText === q.correct) b.classList.add("correct");
+    });
+
+    incorrectAnswers.push({question:q, selected:ans});
   }
 
   setTimeout(() => {
@@ -279,24 +217,13 @@ function checkAnswer(ans,q){
 }
 
 function endQuiz(){
-  clearInterval(timerInterval);
-
   quiz.style.display="none";
-
-  const total=Math.min(totalQuestions,shuffledQuestions.length);
-  const percent=((score/total)*100).toFixed(1);
-
-  quizzesCompleted++;
-  if(percent==100) quizzesAced++;
-  if(percent>=75) quizzesPassed++;
-
   review.style.display="block";
 
-  // show score
-  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+  const total = Math.min(totalQuestions, shuffledQuestions.length);
+  const percent = ((score / total) * 100).toFixed(1);
 
-  // safety check so app doesn't crash
-  if(!incorrectAnswers || incorrectAnswers.length === 0) return;
+  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
 
   incorrectAnswers.forEach(item => {
     const div = document.createElement("div");
@@ -305,9 +232,9 @@ function endQuiz(){
     let html = `<p>${item.question.q}</p>`;
 
     item.question.options.forEach(opt => {
-      if (opt === item.question.correct) {
+      if(opt === item.question.correct){
         html += `<div class='correct'>${opt}</div>`;
-      } else if (opt === item.selected) {
+      } else if(opt === item.selected){
         html += `<div class='incorrect'>${opt}</div>`;
       } else {
         html += `<div>${opt}</div>`;
@@ -317,53 +244,9 @@ function endQuiz(){
     div.innerHTML = html;
     reviewList.appendChild(div);
   });
-}/${total} (${percent}%)</p>`;
-
-  // Show ONLY incorrect answers with highlighting
-  incorrectAnswers.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    let html = `<p>${item.question.q}</p>`;
-
-    item.question.options.forEach(opt => {
-      if (opt === item.question.correct) {
-        html += `<div class='correct'>${opt}</div>`; // correct answer in green
-      } else if (opt === item.selected) {
-        html += `<div class='incorrect'>${opt}</div>`; // user's wrong choice in red
-      } else {
-        html += `<div>${opt}</div>`; // neutral options
-      }
-    });
-
-    div.innerHTML = html;
-    reviewList.appendChild(div);
-  });
-}/${total} (${percent}%)</p>`;
 }
 
-function toggleStatsBar(){
-  statsBar.style.display = statsBar.style.display === "none" ? "block" : "none";
-
-  const accuracy = totalAnswered ? ((totalCorrect/totalAnswered)*100).toFixed(1) : 0;
-
-  document.getElementById("statAnswers").innerText = "Answers Completed: " + totalAnswered;
-  document.getElementById("statCorrect").innerText = "Answers Correct: " + totalCorrect;
-  document.getElementById("statPercent").innerText = "Correct Answer Percentage: " + accuracy + "%";
-  document.getElementById("statQuizzes").innerText = "Quizzes Completed: " + quizzesCompleted;
-  document.getElementById("statAced").innerText = "Quizzes Aced: " + quizzesAced;
-  document.getElementById("statPassed").innerText = "Quizzes Passed (75%): " + quizzesPassed;
-}
-
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-window.onload = () => goHome();
+window.onload = goHome;
 
 </script>
 
