@@ -144,8 +144,13 @@ function selectSection(section){
 }
 
 function openQuizSetup(){
-  mode.style.display="none";
-  quizSetup.style.display="block";
+  // hide dashboard + mode buttons
+  home.style.display = "none";
+  mode.style.display = "none";
+  sectionTitle.style.display = "none";
+
+  // show quiz setup only
+  quizSetup.style.display = "block";
 }
 
 function goHome(){
@@ -163,6 +168,10 @@ function updateQCount(v){
 }
 
 function startQuiz(){
+  // hide everything else
+  home.style.display = "none";
+  mode.style.display = "none";
+  sectionTitle.style.display = "none";
   quizSetup.style.display="none";
   quiz.style.display="block";
 
