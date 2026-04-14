@@ -243,7 +243,6 @@ function endQuiz(){
     item.question.options.forEach(opt => {
       if(opt === item.question.correct){
         html += `<div class='correct'>${opt}</div>`;
-      } else if(opt === item.selected){
         html += `<div class='incorrect'>${opt}</div>`;
       } else {
         html += `<div>${opt}</div>`;
