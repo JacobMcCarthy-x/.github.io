@@ -73,8 +73,12 @@
 
 <!-- STEP 3: SECTION -->
 <div id="sectionSelect" style="display:none;">
-  <h3>Select Section</h3>
-  <div id="sectionButtons" class="row"></div>
+  <h3>Select Sections (choose multiple)</h3>
+
+  <div id="sectionButtons"></div>
+
+  <br>
+  <button onclick="confirmSections()">Continue</button>
 </div>
 
 <!-- STEP 3: SETTINGS -->
@@ -122,7 +126,7 @@
 <script>
 let selectedCert = "";
 let selectedMode = "";
-let selectedSection = "";
+let selectedSections = [];
 let shuffledQuestions = [];
 let currentIndex = 0;
 let score = 0;
@@ -137,18 +141,20 @@ function selectCert(cert){
   document.getElementById("modeSelect").style.display = "block";
 }
 
-function loadSections(){
-  const container = document.getElementById("sectionButtons");
-  container.innerHTML = "";
+function confirmSections(){
+  selectedSections = [];
 
-  let data = A1QuizData;
+  document.querySelectorAll("#sectionButtons input:checked")
+    .forEach(cb => selectedSections.push(cb.value));
 
-  Object.keys(data).forEach(section => {
-    const btn = document.createElement("button");
-    btn.innerText = section;
-    btn.onclick = () => selectSection(section);
-    container.appendChild(btn);
-  });
+  if(selectedSections.length === 0){
+    alert("Select at least one section");
+    return;
+  }
+
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
+}
 
   const allBtn = document.createElement("button");
   allBtn.innerText = "All Sections";
@@ -199,10 +205,12 @@ function startQuiz(){
 
   if(selectedSection === "ALL"){
     let all = [];
-    Object.values(data).forEach(arr => all = all.concat(arr));
-    shuffledQuestions = all.sort(() => Math.random() - 0.5);
-  } else {
-    shuffledQuestions = [...data[selectedSection]].sort(() => Math.random() - 0.5);
+
+selectedSections.forEach(section => {
+  all = all.concat(A1QuizData[section]);
+});
+
+shuffledQuestions = all.sort(() => Math.random() - 0.5);
   }
 
   startTimer();
