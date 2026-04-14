@@ -101,6 +101,7 @@
 </div>
 
 <div id="quiz" style="display:none;">
+  <p id="progressDisplay"></p>
   <p id="timerDisplay"></p>
   <div class="card"><p id="questionText"></p></div>
   <div id="answers"></div>
@@ -131,6 +132,7 @@ const questionText = document.getElementById("questionText");
 const answers = document.getElementById("answers");
 const reviewList = document.getElementById("reviewList");
 const timerDisplay = document.getElementById("timerDisplay");
+const progressDisplay = document.getElementById("progressDisplay");
 
 const qCount = document.getElementById("qCount");
 const timerVal = document.getElementById("timerVal");
@@ -231,6 +233,8 @@ function startTimer(){
 }
 
 function loadQuestion(){
+  // update progress
+  progressDisplay.innerText = "Question " + (currentIndex + 1) + " of " + Math.min(totalQuestions, shuffledQuestions.length);
   if(currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length){ 
     endQuiz(); 
     return; 
