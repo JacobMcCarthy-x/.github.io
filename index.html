@@ -49,20 +49,24 @@
 
 <h2 id="sectionTitle">Dashboard</h2>
 
-<!-- STEP 1: SECTION SELECT -->
+<!-- STEP 1: CERTIFICATION -->
 <div id="home">
-  <h3>Select Section</h3>
+  <h3>Select Certification</h3>
   <div class="row">
-    <button onclick="selectSection('Hardware and Network Troubleshooting (28%)')">Troubleshooting</button>
-    <button onclick="selectSection('Virtualization and Cloud Computing (11%)')">Cloud</button>
-    <button onclick="selectSection('Hardware (25%)')">Hardware</button>
-    <button onclick="selectSection('Networking (23%)')">Networking</button>
-    <button onclick="selectSection('Mobile Devices (13%)')">Mobile</button>
-    <button onclick="selectSection('ALL')">All Sections</button>
+    <button onclick="selectCert('A1')">A+ Core 1</button>
+    <button onclick="selectCert('A2')">A+ Core 2</button>
+    <button onclick="selectCert('NET')">Network+</button>
+    <button onclick="selectCert('SEC')">Security+</button>
   </div>
 </div>
 
-<!-- STEP 2: QUIZ SETTINGS -->
+<!-- STEP 2: SECTION -->
+<div id="sectionSelect" style="display:none;">
+  <h3>Select Section</h3>
+  <div id="sectionButtons" class="row"></div>
+</div>
+
+<!-- STEP 3: SETTINGS -->
 <div id="quizSetup" style="display:none;">
   <h3>Quiz Settings</h3>
 
@@ -80,7 +84,7 @@
   <button onclick="startQuiz()">Begin Quiz</button>
 </div>
 
-<!-- STEP 3: QUIZ -->
+<!-- STEP 4: QUIZ -->
 <div id="quiz" style="display:none;">
   <p id="progressDisplay"></p>
   <p id="timerDisplay"></p>
@@ -92,7 +96,7 @@
   <div id="answers"></div>
 </div>
 
-<!-- STEP 4: RESULTS -->
+<!-- STEP 5: RESULTS -->
 <div id="review" style="display:none;">
   <h3>Results</h3>
   <div id="reviewList"></div>
@@ -105,6 +109,7 @@
 <script src="timer.js"></script>
 
 <script>
+let selectedCert = "";
 let selectedSection = "";
 let shuffledQuestions = [];
 let currentIndex = 0;
@@ -112,32 +117,55 @@ let score = 0;
 let totalQuestions = 10;
 let incorrectAnswers = [];
 
-/* ---------------- NAVIGATION ---------------- */
+function selectCert(cert){
+  selectedCert = cert;
+
+  document.getElementById("home").style.display = "none";
+  document.getElementById("sectionTitle").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "block";
+
+  loadSections();
+}
+
+function loadSections(){
+  const container = document.getElementById("sectionButtons");
+  container.innerHTML = "";
+
+  let data = A1QuizData;
+
+  Object.keys(data).forEach(section => {
+    const btn = document.createElement("button");
+    btn.innerText = section;
+    btn.onclick = () => selectSection(section);
+    container.appendChild(btn);
+  });
+
+  const allBtn = document.createElement("button");
+  allBtn.innerText = "All Sections";
+  allBtn.onclick = () => selectSection("ALL");
+  container.appendChild(allBtn);
+}
 
 function selectSection(section){
   selectedSection = section;
 
-  document.getElementById("home").style.display = "none";
-  document.getElementById("sectionTitle").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quizSetup").style.display = "block";
 }
 
 function goHome(){
   document.getElementById("home").style.display = "block";
+  document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quizSetup").style.display = "none";
   document.getElementById("quiz").style.display = "none";
   document.getElementById("review").style.display = "none";
   document.getElementById("sectionTitle").style.display = "block";
 }
 
-/* ---------------- SETTINGS ---------------- */
-
 function updateQCount(v){
   totalQuestions = parseInt(v);
   document.getElementById("qCount").innerText = v;
 }
-
-/* ---------------- QUIZ ---------------- */
 
 function startQuiz(){
   document.getElementById("quizSetup").style.display = "none";
@@ -147,13 +175,14 @@ function startQuiz(){
   score = 0;
   incorrectAnswers = [];
 
+  let data = A1QuizData;
+
   if(selectedSection === "ALL"){
     let all = [];
-    Object.values(A1QuizData).forEach(arr => all = all.concat(arr));
+    Object.values(data).forEach(arr => all = all.concat(arr));
     shuffledQuestions = all.sort(() => Math.random() - 0.5);
   } else {
-    shuffledQuestions = [...A1QuizData[selectedSection]]
-      .sort(() => Math.random() - 0.5);
+    shuffledQuestions = [...data[selectedSection]].sort(() => Math.random() - 0.5);
   }
 
   startTimer();
@@ -192,7 +221,6 @@ function checkAnswer(btn, ans, q){
     score++;
   } else {
     btn.classList.add("incorrect");
-
     document.querySelectorAll("#answers button").forEach(b => {
       if(b.innerText === q.correct) b.classList.add("correct");
     });
@@ -205,8 +233,6 @@ function checkAnswer(btn, ans, q){
     loadQuestion();
   }, 1000);
 }
-
-/* ---------------- RESULTS ---------------- */
 
 function endQuiz(){
   clearInterval(timerInterval);
@@ -240,8 +266,6 @@ function endQuiz(){
     review.appendChild(div);
   });
 }
-
-/* ---------------- STATS ---------------- */
 
 function toggleStatsBar(){
   const bar = document.getElementById("statsBar");
