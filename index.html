@@ -221,6 +221,19 @@ function confirmSections(){
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quiz").style.display = "block";
 
+  setTimeout(() => {
+    startQuiz();
+  }, 0);
+}
+
+  if(selectedSections.length === 0){
+    alert("Select at least one section");
+    return;
+  }
+
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+
   startQuiz();
 } else {
     document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
@@ -264,8 +277,14 @@ function startQuiz(){
 
   let all = [];
   selectedSections.forEach(section => {
-    all = all.concat(A1QuizData[section]);
+    all = all.concat(A1QuizData[section] || []);
   });
+
+  if(all.length === 0){
+    alert("No questions in selected sections");
+    goHome();
+    return;
+  }
 
   shuffledQuestions = all.sort(() => Math.random() - 0.5);
 
