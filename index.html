@@ -12,7 +12,6 @@
     .correct { border:2px solid green; }
     .incorrect { border:2px solid red; }
 
-    /* Stats panel */
     .stats-panel {
       position: fixed;
       right: 0;
@@ -44,19 +43,11 @@
   <p id="statQuizzes"></p>
   <p id="statAced"></p>
   <p id="statPassed"></p>
-  <br>
-  <button onclick="showResetConfirm()">Reset</button>
-  <div id="resetConfirm" style="display:none;">
-    <p>Are you sure?</p>
-    <button onclick="confirmReset()">Yes</button>
-    <button onclick="cancelReset()">No</button>
-  </div>
 </div>
 
 <div class="container">
 
 <h2 id="sectionTitle">Dashboard</h2>
-
 
 <div id="home">
   <div class="row">
@@ -118,7 +109,6 @@
 <script src="A1QuizData.js"></script>
 <script>
 
-// ELEMENTS
 const home = document.getElementById("home");
 const mode = document.getElementById("mode");
 const quizSetup = document.getElementById("quizSetup");
@@ -141,7 +131,6 @@ const timerIndicator = document.getElementById("timerIndicator");
 const feedbackStatus = document.getElementById("feedbackStatus");
 const feedbackIndicator = document.getElementById("feedbackIndicator");
 
-// STATE
 let currentSection="";
 let shuffledQuestions=[];
 let currentIndex=0;
@@ -160,7 +149,6 @@ let quizzesCompleted=0;
 let quizzesAced=0;
 let quizzesPassed=0;
 
-// NAV
 function selectSection(section){
   currentSection=section;
   home.style.display="none";
@@ -187,7 +175,6 @@ function goHome(){
   sectionTitle.style.display="block";
 }
 
-// SETTINGS
 function updateQCount(v){ totalQuestions=parseInt(v); qCount.innerText=v; }
 function updateTimer(v){ timer=parseInt(v)*60; timerVal.innerText=v; }
 
@@ -203,7 +190,6 @@ function toggleFeedback(){
   feedbackIndicator.style.background=feedbackOn?"green":"red";
 }
 
-// QUIZ
 function startQuiz(){
   quizSetup.style.display="none";
   quiz.style.display="block";
@@ -212,7 +198,6 @@ function startQuiz(){
   score=0;
   incorrectAnswers=[];
 
-  // reset timer each run
   timer = parseInt(timerVal.innerText) * 60;
 
   shuffledQuestions=shuffle([...A1QuizData]);
@@ -233,12 +218,12 @@ function startTimer(){
 }
 
 function loadQuestion(){
-  // update progress
-  progressDisplay.innerText = "Question " + (currentIndex + 1) + " of " + Math.min(totalQuestions, shuffledQuestions.length);
   if(currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length){ 
     endQuiz(); 
     return; 
   }
+
+  progressDisplay.innerText = "Question " + (currentIndex + 1) + " of " + Math.min(totalQuestions, shuffledQuestions.length);
 
   const q=shuffledQuestions[currentIndex];
   questionText.innerText=q.q;
@@ -280,7 +265,7 @@ function checkAnswer(ans,q){
   setTimeout(() => {
     currentIndex++;
     loadQuestion();
-  }, 1200);
+  }, 1000);
 }
 
 function endQuiz(){
@@ -300,7 +285,6 @@ function endQuiz(){
   reviewList.innerHTML=`<p>Score: ${score}/${total} (${percent}%)</p>`;
 }
 
-// STATS
 function toggleStatsBar(){
   statsBar.style.display = statsBar.style.display === "none" ? "block" : "none";
 
@@ -314,25 +298,6 @@ function toggleStatsBar(){
   document.getElementById("statPassed").innerText = "Quizzes Passed (75%): " + quizzesPassed;
 }
 
-function showResetConfirm(){
-  document.getElementById("resetConfirm").style.display = "block";
-}
-
-function cancelReset(){
-  document.getElementById("resetConfirm").style.display = "none";
-}
-
-function confirmReset(){
-  totalAnswered = 0;
-  totalCorrect = 0;
-  quizzesCompleted = 0;
-  quizzesAced = 0;
-  quizzesPassed = 0;
-
-  document.getElementById("resetConfirm").style.display = "none";
-}
-
-// UTIL
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     let j=Math.floor(Math.random()*(i+1));
