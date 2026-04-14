@@ -49,6 +49,7 @@
 
 <h2 id="sectionTitle">Dashboard</h2>
 
+<!-- STEP 1: CERTIFICATION -->
 <div id="home">
   <h3>Select Certification</h3>
   <div class="row">
@@ -59,6 +60,7 @@
   </div>
 </div>
 
+<!-- STEP 2: MODE -->
 <div id="modeSelect" style="display:none;">
   <h3>Select Mode</h3>
   <div class="row">
@@ -69,14 +71,14 @@
   </div>
 </div>
 
+<!-- STEP 3: SECTION -->
 <div id="sectionSelect" style="display:none;">
   <h3>Select Sections</h3>
-  <div id="sectionButtons"></div>
-  <br>
-  <button onclick="confirmSections()">Proceed</button>
-</div>
 
-<div id="quizSetup" style="display:none;">
+  <div id="sectionButtons"></div>
+
+  <hr style="margin:20px 0; border-color:#374151;">
+
   <h3>Quiz Settings</h3>
 
   Questions<br>
@@ -90,9 +92,18 @@
   <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
   <span id="timerStatus">ON</span><br><br>
 
-  <button onclick="startQuiz()">Begin Quiz</button>
+  <button onclick="confirmSections()">Begin Quiz</button>
 </div>
 
+  <br>
+  <button onclick="confirmSections()">Proceed</button>
+</div>
+</div>
+
+<!-- STEP 3: SETTINGS -->
+
+
+<!-- STEP 4: QUIZ -->
 <div id="quiz" style="display:none;">
   <p id="progressDisplay"></p>
   <p id="timerDisplay"></p>
@@ -104,6 +115,7 @@
   <div id="answers"></div>
 </div>
 
+<!-- STEP 5: RESULTS -->
 <div id="review" style="display:none;">
   <h3>Results</h3>
   <div id="reviewList"></div>
@@ -125,58 +137,68 @@ let score = 0;
 let totalQuestions = 10;
 let incorrectAnswers = [];
 
-/* NAV */
 function selectCert(cert){
   selectedCert = cert;
-  home.style.display="none";
-  sectionTitle.style.display="none";
-  modeSelect.style.display="block";
+
+  document.getElementById("home").style.display = "none";
+  document.getElementById("sectionTitle").style.display = "none";
+  document.getElementById("modeSelect").style.display = "block";
 }
 
 function selectMode(mode){
   selectedMode = mode;
-  modeSelect.style.display="none";
-  sectionSelect.style.display="block";
+
+  document.getElementById("modeSelect").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "block";
+
   loadSections();
 }
 
-/* SECTION LOAD */
 function loadSections(){
   const container = document.getElementById("sectionButtons");
   container.innerHTML = "";
 
-  const data = A1QuizData;
+  let data = A1QuizData;
 
+  // ALL checkbox
   const allLabel = document.createElement("label");
+  allLabel.style.display = "block";
+  allLabel.style.margin = "6px";
+
   const allCheckbox = document.createElement("input");
   allCheckbox.type = "checkbox";
   allCheckbox.value = "ALL";
 
   allCheckbox.addEventListener("change", () => {
-    container.querySelectorAll("input").forEach(cb => {
-      if(cb !== allCheckbox) cb.checked = allCheckbox.checked;
+    const checkboxes = container.querySelectorAll("input[type='checkbox']");
+    checkboxes.forEach(cb => {
+      if (cb !== allCheckbox) cb.checked = allCheckbox.checked;
     });
   });
 
   allLabel.appendChild(allCheckbox);
-  allLabel.append(" All Sections");
+  allLabel.appendChild(document.createTextNode(" All Sections"));
   container.appendChild(allLabel);
 
+  // Section checkboxes (vertical)
   Object.keys(data).forEach(section => {
     const label = document.createElement("label");
-    const checkbox = document.createElement("input");
+    label.style.display = "block";
+    label.style.margin = "6px";
 
+    const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.value = section;
 
     label.appendChild(checkbox);
-    label.append(" " + section);
+    label.appendChild(document.createTextNode(" " + section));
 
     container.appendChild(label);
   });
 }
+);
+}
 
-/* CONFIRM */
 function confirmSections(){
   selectedSections = [];
 
@@ -186,8 +208,8 @@ function confirmSections(){
   if(allChecked){
     selectedSections = Object.keys(A1QuizData);
   } else {
-    document.querySelectorAll("#sectionButtons input:checked").forEach(cb => {
-      if(cb.value !== "ALL") selectedSections.push(cb.value);
+    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
+      if (cb.value !== 'ALL') selectedSections.push(cb.value);
     });
   }
 
@@ -196,31 +218,46 @@ function confirmSections(){
     return;
   }
 
-  sectionSelect.style.display="none";
-  quizSetup.style.display="block";
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+
+  startQuiz();
+} else {
+    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
+      if (cb.value !== 'ALL') selectedSections.push(cb.value);
+    });
+  }
+
+  if(selectedSections.length === 0){
+    alert("Select at least one section");
+    return;
+  }
+
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
 }
 
-/* HOME RESET */
+
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quizSetup").style.display = "block";
+}
+
 function goHome(){
-  home.style.display="block";
-  modeSelect.style.display="none";
-  sectionSelect.style.display="none";
-  quizSetup.style.display="none";
-  quiz.style.display="none";
-  review.style.display="none";
-  sectionTitle.style.display="block";
+  document.getElementById("home").style.display = "block";
+  document.getElementById("modeSelect").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "none";
+  document.getElementById("quizSetup").style.display = "none";
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("review").style.display = "none";
+  document.getElementById("sectionTitle").style.display = "block";
 }
 
-/* QUIZ */
 function updateQCount(v){
   totalQuestions = parseInt(v);
-  qCount.innerText = v;
+  document.getElementById("qCount").innerText = v;
 }
 
 function startQuiz(){
-  quizSetup.style.display="none";
-  quiz.style.display="block";
-
   currentIndex = 0;
   score = 0;
   incorrectAnswers = [];
@@ -244,9 +281,12 @@ function loadQuestion(){
 
   const q = shuffledQuestions[currentIndex];
 
-  progressDisplay.innerText = `Question ${currentIndex+1} of ${totalQuestions}`;
-  questionText.innerText = q.q;
+  document.getElementById("progressDisplay").innerText =
+    `Question ${currentIndex+1} of ${totalQuestions}`;
 
+  document.getElementById("questionText").innerText = q.q;
+
+  const answers = document.getElementById("answers");
   answers.innerHTML = "";
 
   q.options.sort(() => Math.random() - 0.5).forEach(opt => {
@@ -265,7 +305,6 @@ function checkAnswer(btn, ans, q){
     score++;
   } else {
     btn.classList.add("incorrect");
-
     document.querySelectorAll("#answers button").forEach(b => {
       if(b.innerText === q.correct) b.classList.add("correct");
     });
@@ -282,17 +321,39 @@ function checkAnswer(btn, ans, q){
 function endQuiz(){
   clearInterval(timerInterval);
 
-  quiz.style.display="none";
-  review.style.display="block";
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("review").style.display = "block";
 
   const total = Math.min(totalQuestions, shuffledQuestions.length);
   const percent = ((score / total) * 100).toFixed(1);
 
-  reviewList.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+  const review = document.getElementById("reviewList");
+  review.innerHTML = `<p>Score: ${score}/${total} (${percent}%)</p>`;
+
+  incorrectAnswers.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    let html = `<p><strong>Question ${item.index + 1}:</strong> ${item.question.q}</p>`;
+
+    item.question.options.forEach(opt => {
+      if(opt === item.question.correct){
+        html += `<div class='correct'>${opt}</div>`;
+      } else if(opt === item.selected){
+        html += `<div class='incorrect'>${opt}</div>`;
+      } else {
+        html += `<div>${opt}</div>`;
+      }
+    });
+
+    div.innerHTML = html;
+    review.appendChild(div);
+  });
 }
 
 function toggleStatsBar(){
-  statsBar.style.display = statsBar.style.display === "none" ? "block" : "none";
+  const bar = document.getElementById("statsBar");
+  bar.style.display = bar.style.display === "none" ? "block" : "none";
 }
 
 window.onload = goHome;
