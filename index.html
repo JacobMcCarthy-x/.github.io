@@ -60,7 +60,18 @@
   </div>
 </div>
 
-<!-- STEP 2: SECTION -->
+<!-- STEP 2: MODE -->
+<div id="modeSelect" style="display:none;">
+  <h3>Select Mode</h3>
+  <div class="row">
+    <button onclick="selectMode('quiz')">Quiz</button>
+    <button onclick="selectMode('test')">Test</button>
+    <button onclick="selectMode('flashcards')">Flashcards</button>
+    <button onclick="selectMode('study')">Study</button>
+  </div>
+</div>
+
+<!-- STEP 3: SECTION -->
 <div id="sectionSelect" style="display:none;">
   <h3>Select Section</h3>
   <div id="sectionButtons" class="row"></div>
@@ -110,6 +121,7 @@
 
 <script>
 let selectedCert = "";
+let selectedMode = "";
 let selectedSection = "";
 let shuffledQuestions = [];
 let currentIndex = 0;
@@ -122,9 +134,7 @@ function selectCert(cert){
 
   document.getElementById("home").style.display = "none";
   document.getElementById("sectionTitle").style.display = "none";
-  document.getElementById("sectionSelect").style.display = "block";
-
-  loadSections();
+  document.getElementById("modeSelect").style.display = "block";
 }
 
 function loadSections(){
@@ -146,6 +156,15 @@ function loadSections(){
   container.appendChild(allBtn);
 }
 
+function selectMode(mode){
+  selectedMode = mode;
+
+  document.getElementById("modeSelect").style.display = "none";
+  document.getElementById("sectionSelect").style.display = "block";
+
+  loadSections();
+}
+
 function selectSection(section){
   selectedSection = section;
 
@@ -155,6 +174,7 @@ function selectSection(section){
 
 function goHome(){
   document.getElementById("home").style.display = "block";
+  document.getElementById("modeSelect").style.display = "none";
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quizSetup").style.display = "none";
   document.getElementById("quiz").style.display = "none";
