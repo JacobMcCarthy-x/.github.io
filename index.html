@@ -205,25 +205,26 @@ function confirmSections(){
   const allCheckbox = document.querySelector("#sectionButtons input[value='ALL']");
   const allChecked = allCheckbox && allCheckbox.checked;
 
-  if(allChecked){
+  if (allChecked) {
     selectedSections = Object.keys(A1QuizData);
   } else {
-    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
-      if (cb.value !== 'ALL') selectedSections.push(cb.value);
-    });
+    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked")
+      .forEach(cb => {
+        if (cb.value !== 'ALL') selectedSections.push(cb.value);
+      });
   }
 
-  if(selectedSections.length === 0){
+  if (selectedSections.length === 0){
     alert("Select at least one section");
     return;
   }
 
+  // move to quiz
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quiz").style.display = "block";
 
-  setTimeout(() => {
-    startQuiz();
-  }, 0);
+  // start quiz AFTER screen switch
+  setTimeout(startQuiz, 0);
 }
 
   if(selectedSections.length === 0){
@@ -234,25 +235,26 @@ function confirmSections(){
   document.getElementById("sectionSelect").style.display = "none";
   document.getElementById("quiz").style.display = "block";
 
-  startQuiz();
-} else {
-    document.querySelectorAll("#sectionButtons input[type='checkbox']:checked").forEach(cb => {
-      if (cb.value !== 'ALL') selectedSections.push(cb.value);
-    });
-  }
+  function startQuiz(){
+  currentIndex = 0;
+  score = 0;
+  incorrectAnswers = [];
 
-  if(selectedSections.length === 0){
-    alert("Select at least one section");
+  let all = [];
+  selectedSections.forEach(section => {
+    all = all.concat(A1QuizData[section] || []);
+  });
+
+  if (all.length === 0){
+    alert("No questions in selected sections");
+    goHome();
     return;
   }
 
-  document.getElementById("sectionSelect").style.display = "none";
-  document.getElementById("quizSetup").style.display = "block";
-}
+  shuffledQuestions = all.sort(() => Math.random() - 0.5);
 
-
-  document.getElementById("sectionSelect").style.display = "none";
-  document.getElementById("quizSetup").style.display = "block";
+  startTimer();
+  loadQuestion();
 }
 
 function goHome(){
