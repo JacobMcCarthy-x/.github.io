@@ -210,6 +210,9 @@ function startQuiz(){
   score=0;
   incorrectAnswers=[];
 
+  // reset timer each quiz
+  timer = parseInt(timerVal.innerText) * 60;
+
   shuffledQuestions=shuffle([...A1QuizData]);
 
   startTimer();
@@ -228,7 +231,24 @@ function startTimer(){
 }
 
 function loadQuestion(){
-  if(currentIndex>=totalQuestions||currentIndex>=shuffledQuestions.length){ endQuiz(); return; }
+  // prevent instant end on first click
+  if((currentIndex>=totalQuestions || currentIndex>=shuffledQuestions.length) && currentIndex > 0){ 
+    endQuiz(); 
+    return; 
+  }
+
+  const q=shuffledQuestions[currentIndex];
+  questionText.innerText=q.q;
+
+  answers.innerHTML="";
+
+  shuffle([...q.options]).forEach(opt=>{
+    const b=document.createElement("button");
+    b.innerText=opt;
+    b.onclick=()=>checkAnswer(opt,q);
+    answers.appendChild(b);
+  });
+}
 
   const q=shuffledQuestions[currentIndex];
   questionText.innerText=q.q;
