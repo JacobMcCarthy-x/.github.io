@@ -127,6 +127,10 @@ const questionText = document.getElementById("questionText");
 const answers = document.getElementById("answers");
 const reviewList = document.getElementById("reviewList");
 const progressDisplay = document.getElementById("progressDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
+const timerVal = document.getElementById("timerVal");
+const timerStatus = document.getElementById("timerStatus");
+const timerIndicator = document.getElementById("timerIndicator");
 
 const qCount = document.getElementById("qCount");
 
@@ -135,6 +139,11 @@ let currentIndex = 0;
 let score = 0;
 let totalQuestions = 10;
 let incorrectAnswers = [];
+
+// TIMER
+let timer = 600;
+let timerInterval;
+let timerEnabled = true;
 
 function selectSection(section){
   home.style.display="none";
@@ -168,6 +177,8 @@ function updateQCount(v){
 }
 
 function startQuiz(){
+  // reset timer
+  timer = parseInt(timerVal.innerText) * 60;
   // hide everything else
   home.style.display = "none";
   mode.style.display = "none";
@@ -181,7 +192,34 @@ function startQuiz(){
 
   shuffledQuestions = [...A1QuizData].sort(() => Math.random() - 0.5);
 
+  startTimer();
   loadQuestion();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  if(!timerEnabled) return;
+
+  timerInterval = setInterval(()=>{
+    if(timer <= 0){
+      clearInterval(timerInterval);
+      endQuiz();
+      return;
+    }
+    timer--;
+    timerDisplay.innerText = "Time: " + Math.floor(timer/60) + ":" + (timer%60).toString().padStart(2,'0');
+  },1000);
+}
+
+function toggleTimer(){
+  timerEnabled = !timerEnabled;
+  timerStatus.innerText = timerEnabled ? "ON" : "OFF";
+  timerIndicator.style.background = timerEnabled ? "green" : "red";
+}
+
+function updateTimer(v){
+  timer = parseInt(v) * 60;
+  timerVal.innerText = v;
 }
 
 function loadQuestion(){
@@ -226,6 +264,7 @@ function checkAnswer(btn, ans, q){
 }
 
 function endQuiz(){
+  clearInterval(timerInterval);
   quiz.style.display="none";
   review.style.display="block";
 
@@ -243,6 +282,7 @@ function endQuiz(){
     item.question.options.forEach(opt => {
       if(opt === item.question.correct){
         html += `<div class='correct'>${opt}</div>`;
+      } else if(opt === item.selected){
         html += `<div class='incorrect'>${opt}</div>`;
       } else {
         html += `<div>${opt}</div>`;
