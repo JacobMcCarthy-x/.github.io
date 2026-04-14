@@ -58,7 +58,7 @@
 <div id="quizSetup" style="display:none;">
   <h3>Quiz Settings</h3>
 
-  Questions (5–50)<br>
+  Questions<br>
   <input type="range" min="5" max="50" value="10" oninput="updateQCount(this.value)">
   <span id="qCount">10</span><br><br>
 
@@ -66,7 +66,7 @@
   <input type="range" min="5" max="60" value="10" oninput="updateTimer(this.value)">
   <span id="timerVal">10</span>
   <button onclick="toggleTimer()">Toggle</button>
-  <span id="timerIndicator"></span>
+  <span id="timerIndicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;"></span>
   <span id="timerStatus">ON</span><br><br>
 
   <button onclick="startQuiz()">Begin Quiz</button>
